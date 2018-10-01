@@ -1,4 +1,5 @@
-# python script to get the most recent dollop mp3 from the rss feed
+# python script to get the most recent podcast episode from the rss feed
+# this is a python3 script
 
 import feedparser
 import json
@@ -7,6 +8,7 @@ from mutagen.mp3 import MP3
 from mutagen.id3 import ID3NoHeaderError
 from mutagen.id3 import ID3, TIT2, TALB, TPE1, TPE2, COMM, USLT, TCOM, TCON, TDRC, TRCK, TPOS
 
+# opens and loads the podcast dictionary
 with open('podDictionary.json') as podcasts:
 	info = json.load(podcasts)
 
@@ -22,20 +24,41 @@ for podcast in info:
 			urllib.request.urlretrieve(url,fileName)
 
 			try:
+				# checks to see if the file has existing ID3
+				# and if so, blanks it out for consistency
 				audio = ID3(fileName)
 				audio.delete()
+				# creates and ID3 space to add tags until they 
+				# are ready to be saved to the .mp3 file
 				audio = ID3()
 			except ID3NoHeaderError:
 				print("Adding ID3 header")
 				audio = ID3()
 
-			audio.add(TIT2(encoding=3,text=title)) #add title
-			audio.add(TRCK(encoding=3,text=episodeNum)) #add track number
-			audio.add(TPOS(encoding=3,text=seasonNum)) #add season number
-			audio.add(TPE1(encoding=3,text=podcast['artist'])) #add artist
-			audio.add(TPE2(encoding=3,text=podcast['album_artist'])) #add album artist
-			audio.add(TALB(encoding=3,text=podcast['album'])) #add album
-			audio.save(fileName) #this save function only saves the ID3 tags, it does not resave the mp3. So, if you don't have it pointed at the actual file location it will just save a text file full of metadata that will be useless
+			# add title
+			audio.add(TIT2(encoding=3,text=title))
+
+			# add track number
+			audio.add(TRCK(encoding=3,text=episodeNum))
+
+			# add season number (disc)
+			audio.add(TPOS(encoding=3,text=seasonNum))
+
+			# add artist
+			audio.add(TPE1(encoding=3,text=podcast['artist']))
+
+			# add album artist
+			audio.add(TPE2(encoding=3,text=podcast['album_artist']))
+
+			# add album
+			audio.add(TALB(encoding=3,text=podcast['album']))
+			audio.save(fileName) 
+			
+			# This save function only saves the ID3 tags, it does 
+			# not resave the mp3. So, if you don't have it pointed 
+			# at the actual file location it will just save a text 
+			# file full of metadata that will be useless
+			
 		elif podcast['host'] == 'art19':
 			url = d.entries[0].links[0].href
 			title = d.entries[0].title.rstrip()
