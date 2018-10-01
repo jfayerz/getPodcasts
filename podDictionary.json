@@ -1,0 +1,50 @@
+[
+	{
+		"name": "dollop",
+		"rss": "http://thedollop.libsyn.com/rss",
+		"last_downloaded": "",
+		"last_url": "http://traffic.libsyn.com/thedollop/Danny_Greene_-_ads.mp3",
+		"host": "libsyn",
+		"episode_number": "no",
+		"season_number": "no",
+		"artist": "Dave Anthony and Gareth Reynolds",
+		"album_artist": "The Dollop",
+		"album": "The Dollop"
+	},
+	{
+		"name": "genwhy",
+		"rss": "https://rss.art19.com/generation-why-podcast",
+		"last_downloaded": "",
+		"last_url": "https://dts.podtrac.com/redirect.mp3/rss.art19.com/episodes/2368d94a-28b7-48af-8bca-1484bb0fb5f7.mp3",
+		"host": "art19",
+		"episode_number": "yes",
+		"season_number": "no",
+		"artist": "The Generation Why Podcast",
+		"album_artist": "The Generation Why Podcast",
+		"album": "The Generation Why Podcast"
+	},
+	{
+		"name": "archive81",
+		"rss": "http://archive81.libsyn.com/rss",
+		"last_downloaded": "",
+		"last_url": "http://dts.podtrac.com/redirect.mp3/traffic.libsyn.com/archive81/10_Whatevers_in_the_pond..._kill_it.mp3",
+		"host": "libsyn",
+		"episode_number": "yes",
+		"season_number": "yes",
+		"artist": "Marc Sollinger and David Powell",
+		"album_artist": "Dead Signals",
+		"album": "Archive 81"
+	},
+	{
+		"name": "ltw",
+		"rss": "https://david-berge-opzh.squarespace.com/liketreeswalking?format=rss",
+		"last_downloaded": "",
+		"last_url": "http://static1.squarespace.com/static/56fd2048b654f9cb18e8fe9c/t/5ba4078e0d9297362660c652/1537476547933/ltw322full.mp3",
+		"host": "other",
+		"episode_number": "yes",
+		"season_number": "yes",
+		"artist": "Mike Nelson and David Berge",
+		"album_artist": "Like Trees Walking",
+		"album": "Like Trees Walking"
+	}
+]
