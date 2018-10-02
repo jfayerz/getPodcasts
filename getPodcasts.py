@@ -13,6 +13,14 @@ def getEpisodeNum(s,delim1,pos1,delim2,pos2):
 	name = s.partition(delim1)[pos1]
 	return name.partition(delim2)[pos2]
 
+# function to update "last_url" for each podcast entry in the json dictionary
+def updateLastURL(s):
+	if url == podcast['last_url']:
+		print("Already Downloaded" + title + ".")
+	else:
+		podcast['last_url'] = url
+		print("Last URL updated for podcast: " + podcast['name'] + ".")
+
 # opens and loads the podcast dictionary
 with open('podDictionary.json') as podcasts:
 	info = json.load(podcasts)
