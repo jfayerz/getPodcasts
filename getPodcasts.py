@@ -8,6 +8,11 @@ from mutagen.mp3 import MP3
 from mutagen.id3 import ID3NoHeaderError
 from mutagen.id3 import ID3, TIT2, TALB, TPE1, TPE2, COMM, USLT, TCOM, TCON, TDRC, TRCK, TPOS
 
+# function to get episode number from non standard location
+def getEpisodeNum(s,delim1,pos1,delim2,pos2):
+	name = s.partition(delim1)[pos1]
+	return name.partition(delim2)[pos2]
+
 # opens and loads the podcast dictionary
 with open('podDictionary.json') as podcasts:
 	info = json.load(podcasts)
@@ -184,7 +189,13 @@ for podcast in info:
 			url = d.entries[0].links[1].href.partition("?")[0].rstrip()
 			title = d.entries[0].title.rstrip()
 			fileName = title + ".mp3"
-			episodeNum = d.entries[0].title.partition(" ")[0].rstrip()
+			if podcast['epNumLoc'] == "title":
+				episodeNum = getEpisodeNum(title,podcast['delim1'],int(podcast['position1']),podcast['delim2'],int(podcast['position2']))
+			elif podcast['epNumLoc'] == "filename":
+				episodeNum = getEpisodeNum(url,podcast['delim1'],int(podcast['position1']),podcast['delim2'],int(podcast['position2']))
+			else:
+				print("No episode location defined")
+			#episodeNum = d.entries[0].title.partition(" ")[0].rstrip()
 			urllib.request.urlretrieve(url,fileName)
 
 			try:

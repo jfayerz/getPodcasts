@@ -10,7 +10,12 @@
 		"last_episode_number": "347",
 		"artist": "Dave Anthony and Gareth Reynolds",
 		"album_artist": "The Dollop",
-		"album": "The Dollop"
+		"album": "The Dollop",
+		"delim1": "-",
+		"position1": "0",
+		"delim2": " ",
+		"position2": "0",
+		"epNumLoc": "title"
 	},
 	{
 		"name": "genwhy",
@@ -22,7 +27,8 @@
 		"season_number": "no",
 		"artist": "The Generation Why Podcast",
 		"album_artist": "The Generation Why Podcast",
-		"album": "The Generation Why Podcast"
+		"album": "The Generation Why Podcast",
+		"epNumLoc": "itunes"
 	},
 	{
 		"name": "archive81",
@@ -34,7 +40,8 @@
 		"season_number": "yes",
 		"artist": "Marc Sollinger and David Powell",
 		"album_artist": "Dead Signals",
-		"album": "Archive 81"
+		"album": "Archive 81",
+		"epNumLoc": "itunes"
 	},
 	{
 		"name": "ltw",
@@ -46,7 +53,8 @@
 		"season_number": "yes",
 		"artist": "Mike Nelson and David Berge",
 		"album_artist": "Like Trees Walking",
-		"album": "Like Trees Walking"
+		"album": "Like Trees Walking",
+		"epNumLoc": "itunes"
 	},
 	{
 		"name": "cashingIn",
@@ -59,6 +67,11 @@
 		"last_episode_number": "190",
 		"artist": "Cash Levy & T.J. Miller",
 		"album_artist": "Nerdist",
-		"album": "Cashing In with T.J. Miller"
+		"album": "Cashing In with T.J. Miller",
+		"delim1": "r/",
+		"position1": "2",
+		"delim2": "_",
+		"position2": "0",
+		"epNumLoc": "filename"
 	}
 ]
