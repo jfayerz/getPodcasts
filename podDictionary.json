@@ -7,6 +7,7 @@
 		"host": "libsyn",
 		"episode_number": "no",
 		"season_number": "no",
+		"last_episode_number": "347",
 		"artist": "Dave Anthony and Gareth Reynolds",
 		"album_artist": "The Dollop",
 		"album": "The Dollop"
@@ -46,5 +47,18 @@
 		"artist": "Mike Nelson and David Berge",
 		"album_artist": "Like Trees Walking",
 		"album": "Like Trees Walking"
+	},
+	{
+		"name": "cashingIn",
+		"rss": "http://cashinginwithtjmiller.libsyn.com/rss",
+		"last_downloaded": "",
+		"last_url": "",
+		"host": "libsyn",
+		"episode_number": "no",
+		"season_number": "no",
+		"last_episode_number": "190",
+		"artist": "Cash Levy & T.J. Miller",
+		"album_artist": "Nerdist",
+		"album": "Cashing In with T.J. Miller"
 	}
 ]
