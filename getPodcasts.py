@@ -7,6 +7,7 @@ this is a python3 script
 
 import json
 import urllib
+from datetime import date
 
 import feedparser
 # from mutagen.mp3 import MP3
@@ -46,11 +47,11 @@ def update_last_url(s):
     Returns:
 
     """
-    if url == podcast['last_url']:
+    if s == podcast['last_url']:
         print("Already Downloaded" + title + ".")
     else:
-        podcast['last_url'] = url
         print("Last URL updated for podcast: " + podcast['name'] + ".")
+	return podcast['last_url']
 
 
 # opens and loads the podcast dictionary
@@ -227,16 +228,27 @@ for podcast in info:
     elif podcast['episode_number'] == 'no':
         if podcast['host'] == 'libsyn':
             url = d.entries[0].links[1].href.partition("?")[0].rstrip()
-            title = d.entries[0].title.rstrip()
-            fileName = title + ".mp3"
-            if podcast['epNumLoc'] == "title":
-                episodeNum = get_episode_num(title, podcast['delim1'], int(podcast['position1']), podcast['delim2'], int(podcast['position2']))
-            elif podcast['epNumLoc'] == "filename":
-                episodeNum = get_episode_num(url, podcast['delim1'], int(podcast['position1']), podcast['delim2'], int(podcast['position2']))
-            else:
-                print("No episode location defined")
-            # episodeNum = d.entries[0].title.partition(" ")[0].rstrip()
-            urllib.request.urlretrieve(url, fileName)
+			if url == podcast['last_url']
+				print("Episode already downloaded on " + podcast['last_downloaded'] + ".")
+			else:
+				tmpURL = podcast['last_url']
+				tmpDate = podcast['last_downloaded']
+				podcast['last_url'] = url
+				podcast['last_downloaded'] = str(date.today())
+				with open('podDictionary.json', 'w') as podcasts:
+					json.dump(podcast,podcasts)
+				title = d.entries[0].title.rstrip()
+	            fileName = title + ".mp3"
+    		        if podcast['epNumLoc'] == "title":
+            		    episodeNum = get_episode_num(title, podcast['delim1'], int(podcast['position1']), podcast['delim2'], int(podcast['position2']))
+		            elif podcast['epNumLoc'] == "filename":
+        		        episodeNum = get_episode_num(url, podcast['delim1'], int(podcast['position1']), podcast['delim2'], int(podcast['position2']))
+		            else:
+        		        print("No episode location defined")
+
+        		    # episodeNum = d.entries[0].title.partition(" ")[0].rstrip()
+
+		        urllib.request.urlretrieve(url, fileName)
 
             try:
                 audio = ID3(fileName)
