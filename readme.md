@@ -18,7 +18,6 @@ This is a script that will check a dictionary file, get and parse an rss feed, a
 		- [https://docs.python.org/2/library/configparser.html](https://docs.python.org/2/library/configparser.html)
 
 Future plans include:
-
 	- Ability for script to check the mp3 url against the dictionary to determine if the episode has already been downloaded
 	- Interactive CLI option to add new podcast info
 	- Other items as they present themselves
