@@ -1,5 +1,3 @@
-# List of Podcasts for getPodcasts.py
-
 [dollop]
 rss = http://thedollop.libsyn.com/rss
 artist = Dave Anthony and Gareth Reynolds
@@ -7,9 +5,9 @@ album = The Dollop
 album_artist = The Dollop
 host = libsyn
 parameters = -,0, ,0
-epLoc = title
-epNum = no
-snNum = no
+eploc = title
+epnum = no
+snnum = no
 
 [ltw]
 rss = https://david-berge-opzh.squarespace.com/liketreeswalking?format=rss
@@ -18,9 +16,9 @@ album = Like Trees Walking
 album_artist = Like Tree Walking
 host = other
 parameters = 
-epLoc = 
-epNum = yes
-snNum = yes
+eploc = 
+epnum = yes
+snnum = yes
 
 [archive81]
 rss = http://archive81.libsyn.com/rss
@@ -29,9 +27,9 @@ album = Archive 81
 arlbum_artist = Dead Signals
 host = libsyn
 parameters = 
-epLoc = 
-epNum = yes
-snNum = yes
+eploc = 
+epnum = yes
+snnum = yes
 
 [cashing]
 rss = http://cashinginwithtjmiller.libsyn.com/rss
@@ -40,9 +38,9 @@ album = Cashing In with T.J. Miller
 album_artist = Nerdist
 host = libsyn
 parameters = r/,2,_,0
-epLoc = filename
-epNum = no
-snNum = no
+eploc = filename
+epnum = no
+snnum = no
 
 [genwhy]
 rss = 
@@ -51,6 +49,18 @@ album = The Generation Why Podcast
 album_artist = The Generation Why Podcast
 host = art19
 parameters = 
-epLoc = 
-epNum = yes
-snNum = no
+eploc = 
+epnum = yes
+snnum = no
+
+[walkout]
+rss = https://www.omnycontent.com/d/playlist/6e2a797b-0cc4-4c0b-a44d-a51e0019bc3c/dac8d71c-2d3e-4e65-bfd0-a64201809d36/333b0b2a-2e44-4617-8974-a64201851227/podcast.rss
+artist = Walk Out Boys
+album = Walk Out Boys
+album_artist = Little Empire Podcasts
+host = 
+parameters = 
+eploc = 
+epnum = 
+snnum = 
+
