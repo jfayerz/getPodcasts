@@ -17,6 +17,23 @@ from mutagen.id3 import ID3
 # TODO: These are "protected members" not intended to be used outside the class.  Check mutagen's docs?
 from mutagen.id3 import TIT2, TALB, TPE1, TPE2, TRCK, TPOS
 
+	"""
+	Notes:
+	configparser
+	configparser.ConfigParser()
+	config = configparser.ConfigParser()
+	config.read(filename)
+	config['item']['subitem'] = 'new value'
+	with open(filename,"w") as f:
+		config.write(f) #this writes the whole file again, but using
+				#the config['item']['subitem'] format the only
+				#thing changing is that one field or whatever
+				#other fields you change
+	with open(filename,'a') as f: 	#this opens it in append mode
+					#useful for adding a new entry to
+					#the config file (e.g. a new podcast
+					#section of info
+	"""
 
 def get_episode_num(s, delim1, pos1, delim2, pos2):
     """
