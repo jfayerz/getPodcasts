@@ -5,16 +5,12 @@ python script to get the most recent podcast episode from the rss feed
 this is a python3 script
 """
 
-import json
 import urllib
 from datetime import date
 
 import feedparser
-# from mutagen.mp3 import MP3
 from mutagen.id3 import ID3NoHeaderError
 from mutagen.id3 import ID3
-# from mutagen.id3 import COMM, USLT, TCOM, TCON, TDRC  # TODO: These are not used
-# TODO: These are "protected members" not intended to be used outside the class.  Check mutagen's docs?
 from mutagen.id3 import TIT2, TALB, TPE1, TPE2, TRCK, TPOS
 
 	"""
@@ -35,6 +31,10 @@ from mutagen.id3 import TIT2, TALB, TPE1, TPE2, TRCK, TPOS
 					#section of info
 	"""
 
+def downloadEp(url,fileName):
+	urllib.request.urlretrieve(url, fileName)
+	
+
 def get_episode_num(s, delim1, pos1, delim2, pos2):
     """
     function to get episode number from non standard location
@@ -47,13 +47,11 @@ def get_episode_num(s, delim1, pos1, delim2, pos2):
         pos2:
 
     Returns:
-
     """
     name = s.partition(delim1)[pos1]
     return name.partition(delim2)[pos2]
 
 
-# TODO: "s" parameter not used
 def update_last_url(s):
     """
     function to update "last_url" for each podcast entry in the json dictionary
@@ -72,15 +70,55 @@ def update_last_url(s):
 
 
 # opens and loads the podcast dictionary
-with open('podDictionary.json') as podcasts:
-    info = json.load(podcasts)
+config = configparser.ConfigParser()
+history = configparser.ConfigParser()
+config.read('podConfig')
+history.read('podHistory')
+
+for item in config:
+	rss = feedparser.parse(item['rss'])
+	if item['epnum'] == 'yes' and item['snnum'] == 'yes':
+		if item['urlFormat'] == 'questionmark':
+			
+			url = rss.entries[0].links[1].href.partition("?")[0].rstrip()
+			if url == history[item]['last_url']
+			title = rss.entries[0].title.rstrip()
+			episodeNum = rss.entries[0].itunes_episode
+			seasonNum = rss.entries[0].itunes_season
+			filename = title + ".mp3"
+
+			try:
+				audio.ID3(filename)
+				audio.delete()
+				audio.ID3()
+			except ID3NoHeaderError:
+				audio.ID3()
+			
+			# add title
+            		audio.add(TIT2(encoding=3, text=title))
+
+            		# add track number
+            		audio.add(TRCK(encoding=3, text=episodeNum))
+
+            		# add season number 
+			audio.add(TPOS(encoding=3, text=seasonNum))
+
+            		# add artist
+            		audio.add(TPE1(encoding=3, text=item['artist']))
+
+            		# add album artist
+            		audio.add(TPE2(encoding=3, text=item['album_artist']))
+
+            		# add album
+            		audio.add(TALB(encoding=3, text=item['album']))
+            		audio.save(filename) 
 
 for podcast in info:
-    d = feedparser.parse(podcast['rss'])
+    rss = feedparser.parse(podcast['rss'])
     if podcast['episode_number'] == 'yes' and podcast['season_number'] == 'yes':
-        if podcast['host'] == 'libsyn':
-            url = d.entries[0].links[1].href.partition("?")[0].rstrip()
-            title = d.entries[0].title.rstrip()
+        if podcast['urlFormat'] == 'questionmark':
+            url = rss.entries[0].links[1].href.partition("?")[0].rstrip()
+            title = rss.entries[0].title.rstrip()
             episodeNum = d.entries[0].itunes_episode
             seasonNum = d.entries[0].itunes_season
             fileName = title + ".mp3"

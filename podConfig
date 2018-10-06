@@ -1,4 +1,5 @@
 [dollop]
+name = dollop
 rss = http://thedollop.libsyn.com/rss
 artist = Dave Anthony and Gareth Reynolds
 album = The Dollop
@@ -10,6 +11,7 @@ epnum = no
 snnum = no
 
 [ltw]
+name = ltw
 rss = https://david-berge-opzh.squarespace.com/liketreeswalking?format=rss
 artist = Mike Nelson and David Berge
 album = Like Trees Walking
@@ -21,6 +23,7 @@ epnum = yes
 snnum = yes
 
 [archive81]
+name = archive81
 rss = http://archive81.libsyn.com/rss
 artist = Marc Sollinger and David Powell
 album = Archive 81
@@ -32,6 +35,7 @@ epnum = yes
 snnum = yes
 
 [cashing]
+name = cashing
 rss = http://cashinginwithtjmiller.libsyn.com/rss
 artist = Cash Levy & T.J. Miller
 album = Cashing In with T.J. Miller
@@ -43,6 +47,7 @@ epnum = no
 snnum = no
 
 [genwhy]
+name = genwhy
 rss = https://rss.art19.com/generation-why-podcast
 artist = The Generation Why Podcast
 album = The Generation Why Podcast
@@ -54,6 +59,7 @@ epnum = yes
 snnum = no
 
 [walkout]
+name = walkout
 rss = https://www.omnycontent.com/d/playlist/6e2a797b-0cc4-4c0b-a44d-a51e0019bc3c/dac8d71c-2d3e-4e65-bfd0-a64201809d36/333b0b2a-2e44-4617-8974-a64201851227/podcast.rss
 artist = Walk Out Boys
 album = Walk Out Boys
@@ -65,6 +71,7 @@ epnum = no
 snnum = no
 
 [pseudo]
+name = pseudo
 rss = http://pseudopod.org/feed/
 artist = PseudoPod
 album = PseudoPod
