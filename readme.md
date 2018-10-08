@@ -19,7 +19,7 @@ This is a script that will check a dictionary file, get and parse an rss feed, a
 
 Future plans include:
 
-* Ability for script to check the mp3 url against the dictionary to determine if the episode has already been downloaded
+* ~~Ability for script to check the mp3 url against the dictionary to determine if the episode has already been downloaded~~
 * Interactive CLI option to add new podcast info
 * Other items as they present themselves
 * ~~standardize way to get episode number from non-standard location~~
