@@ -9,6 +9,7 @@ parameters = -,0, ,0
 eploc = title
 epnum = no
 snnum = no
+rssparams = 0,1
 
 [ltw]
 name = ltw
@@ -21,6 +22,7 @@ parameters =
 eploc = 
 epnum = yes
 snnum = yes
+rssparams = 0,0
 
 [archive81]
 name = archive81
@@ -33,6 +35,7 @@ parameters =
 eploc = 
 epnum = yes
 snnum = yes
+rssparams = 0,0
 
 [cashing]
 name = cashing
@@ -45,6 +48,7 @@ parameters = r/,2,_,0
 eploc = filename
 epnum = no
 snnum = no
+rssparams = 0,0
 
 [genwhy]
 name = genwhy
@@ -52,11 +56,12 @@ rss = https://rss.art19.com/generation-why-podcast
 artist = The Generation Why Podcast
 album = The Generation Why Podcast
 album_artist = The Generation Why Podcast
-urlFormat = vanilla
+urlFormat = 
 parameters = 
 eploc = 
 epnum = yes
 snnum = no
+rssparams = 0,0
 
 [walkout]
 name = walkout
@@ -69,6 +74,7 @@ parameters =
 eploc = 
 epnum = no
 snnum = no
+rssparams = 0,0
 
 [pseudo]
 name = pseudo
@@ -81,3 +87,4 @@ parameters = :,0, ,2
 eploc = title
 epnum = no
 snnum = no
+rssparams = 0,1

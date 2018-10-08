@@ -6,7 +6,6 @@ this is a python3 script
 """
 
 import urllib
-from datetime import date
 
 import feedparser
 from mutagen.id3 import ID3NoHeaderError
@@ -30,6 +29,29 @@ from mutagen.id3 import TIT2, TALB, TPE1, TPE2, TRCK, TPOS
 					#the config file (e.g. a new podcast
 					#section of info
 	"""
+def unnamedFunction(): #rename? what am I passing to this function
+    for item in config.sections():
+        rss = feedparser.parse(item['rss'])
+        p1 = item['rssparams'].split(",")[0]
+        p2 = item['rssparams'].split(",")[1]
+        if item['urlFormat'] == 'questionmark':
+            url = rss.entries[p1].links[p2].href.partition("?")[0].rstrip()
+        else:
+            url = rss.entries[p1].links[p2].href
+        if item in history.sections():
+            if url != history[item]['last_url']:
+                history[item]['last_url'] = url
+                with open('podHistory','w') as pH:
+                    history.write(pH)               #writes entire podHistory
+                                                    #file with new information 
+                                                    #in the matching item 
+                                                    #last_url field
+                urllib.request.urlretrieve(url,fileName)
+            else:
+                print("Already Downloaded " + item + " episode.")
+        else:
+            print("Error")
+                
 
 def downloadEp(url,fileName):
 	urllib.request.urlretrieve(url, fileName)
