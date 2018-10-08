@@ -4,14 +4,14 @@
 This is a script that will check a dictionary file, get and parse an rss feed, and then download/rename podcast files
 
 * ~~The podDictionary.json file is a json dictionary of podcasts that the python script uses for reference~~
-* Switched to a config file instead as it was more userfriendly
+* Switched to a config file instead as it was more user friendly
 * also using a config file for history
 * It needs to be in the same directory as the python script or you need to alter the python script to point to the new directory
 * Dependencies for the script include
 	- feedparser
 		- [https://pythonhosted.org/feedparser/](https://pythonhosted.org/feedparser/)
-	- json
-		- [https://docs.python.org/3/library/json.html](https://docs.python.org/3/library/json.html)
+	- ~~json~~
+		- ~~[https://docs.python.org/3/library/json.html](https://docs.python.org/3/library/json.html)~~
 	- mutagen
 		- [https://mutagen.readthedocs.io/en/latest/](https://mutagen.readthedocs.io/en/latest/)		
 	- configparser
@@ -24,3 +24,7 @@ Future plans include:
 * Other items as they present themselves
 * ~~standardize way to get episode number from non-standard location~~
 * option to present a list of the most recent n episodes and select for download
+
+## testFunction.py
+
+This script was to test the unnamedFunction() i created to handle the downloading.

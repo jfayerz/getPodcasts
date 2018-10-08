@@ -9,6 +9,9 @@ the purpose of this is to test the function that I wrote
 import feedparser
 import urllib
 import configparser
+from mutagen.id3 import ID3NoHeaderError
+from mutagen.id3 import ID3
+from mutagen.id3 import TIT2, TALB, TPE1, TPE2, TRCK, TPOS
 
 configFile = 'podConfig'
 histFile = 'podHistory'
@@ -23,30 +26,27 @@ rssparams = 'rssparams'
 
 def unnamedFunction(config_Sections,history_Sections,rssparams): #rename? what am I passing to this function
 	for item in config_Sections:
-		print(item)
 		rss = feedparser.parse(config[item]['rss'])
 		rss_param_left = int(config[item][rssparams].split(",")[0])
 		rss_param_right = int(config[item][rssparams].split(",")[1])
 		last_url = history[item]['last_url']
 		if config[item]['urlFormat'] == 'questionmark':
 			url = rss.entries[rss_param_left].links[rss_param_right].href.partition("?")[0].rstrip()
-	else:
-		url = rss.entries[rss_param_left].links[rss_param_right].href
+		else:
+			url = rss.entries[rss_param_left].links[rss_param_right].href
 		title = rss.entries[rss_param_left].title.rstrip()
 		fileName = title + ".mp3"
-	if item in history_Sections:
-		if url != last_url:
-			history[item]['last_url'] = url
-			with open('podHistory','w') as pH:
-				history.write(pH)   #writes entire podHistory
-                                                    #file with new information 
-                                                    #in the matching item 
-                                                    #last_url field
-			urllib.request.urlretrieve(url,fileName)
+		if item in history_Sections:
+			if url != last_url:
+				history[item]['last_url'] = url
+				with open('podHistory','w') as pH:
+					history.write(pH)   				
+				print("Downloading " + title + " from the " + item + " podcast.")
+				urllib.request.urlretrieve(url,fileName) 	
+			else:
+				print("Already Downloaded " + item + " episode.")
 		else:
-			print("Already Downloaded " + item + " episode.")
-	else:
-		print("Error")
+			print("Error")
 
 print(config_Sections)
 print(history_Sections)
