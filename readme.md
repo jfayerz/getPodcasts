@@ -27,4 +27,17 @@ Future plans include:
 
 ## testFunction.py
 
-This script was to test the unnamedFunction() i created to handle the downloading.
+- This script was to test the unnamedFunction() i created to handle the downloading.
+- This works now in that it downloads the episodes and doesn't throw any errors
+- it also writes the url and date to the podHistory file now
+- also, it checks the podHistory file and does not download the file if it finds the url in the last\_url field
+
+
+## things that don't work
+
+- it's not putting the correct / complete url into the podHistory file for some of the podcasts
+- also, i don't believe it's actually downloading those episodes either. 
+- this points to a problem with the "partition" parts of the script that are designed to get the mp3url.  
+- also, and this is universal at this point, it is not writing the episode number to the metadata.
+- it *is* writing the season (disc) number to the metadata
+- i'm not sure if it's just failing to get the episode number or if there's something wrong with the write.

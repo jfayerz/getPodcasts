@@ -5,14 +5,16 @@ Notes:
 testpython.py
 the purpose of this is to test the function that I wrote
 """
-
+import json
 import feedparser
 import urllib
 import configparser
+from datetime import date
 from mutagen.id3 import ID3NoHeaderError
 from mutagen.id3 import ID3
 from mutagen.id3 import TIT2, TALB, TPE1, TPE2, TRCK, TPOS
 
+todays_date = str(date.today())
 configFile = 'podConfig'
 histFile = 'podHistory'
 
@@ -24,30 +26,83 @@ config_Sections = config.sections()
 history_Sections = history.sections()
 rssparams = 'rssparams'
 
-def unnamedFunction(config_Sections,history_Sections,rssparams): #rename? what am I passing to this function
+def get_episode_num(s,parameters):
+#function to get episode number from non standard location
+	foo1 = parameters[0]
+	bar1 = int(parameters[1])
+	foo2 = parameters[2]
+	bar2 = int(parameters[3])
+	name = s.partition(foo1)[bar1]
+	return name.partition(foo2)[bar2]
+
+def getPodcasts(config_Sections,history_Sections,rssparams):
 	for item in config_Sections:
-		rss = feedparser.parse(config[item]['rss'])
 		rss_param_left = int(config[item][rssparams].split(",")[0])
 		rss_param_right = int(config[item][rssparams].split(",")[1])
+		rss = feedparser.parse(config[item]['rss'])
+		i = config.get(item,"parameters")
+		if i != "":
+			params = i.split(",")
+		title = rss.entries[rss_param_left].title.rstrip()
+		fileName = title + ".mp3"
+		artist = config[item]['artist']
+		album = config[item]['album']
+		album_artist = config[item]['album_artist']
 		last_url = history[item]['last_url']
 		if config[item]['urlFormat'] == 'questionmark':
 			url = rss.entries[rss_param_left].links[rss_param_right].href.partition("?")[0].rstrip()
 		else:
 			url = rss.entries[rss_param_left].links[rss_param_right].href
-		title = rss.entries[rss_param_left].title.rstrip()
+		if config[item]['eploc']:
+			if config[item]['epnum'] == 'no':
+				epNum = ''
+			else:
+				epNum = rss.entries[rss_param_left].itunes_episode
+		elif config[item]['eploc'] == "title":
+			epNum = get_episode_num(title,params)
+		else:
+			epNum = get_episode_num(url,params)
+		if config[item]['snnum'] == "yes":
+			snNum = rss.entries[rss_param_left].itunes_season
+		else:
+			snNum = ''
 		fileName = title + ".mp3"
 		if item in history_Sections:
 			if url != last_url:
 				history[item]['last_url'] = url
+				history[item]['last_downloaded_date'] = todays_date
 				with open('podHistory','w') as pH:
 					history.write(pH)   				
 				print("Downloading " + title + " from the " + item + " podcast.")
-				urllib.request.urlretrieve(url,fileName) 	
+				urllib.request.urlretrieve(url,fileName)
+				writeID3(fileName,title,epNum,snNum,album,album_artist,artist)
 			else:
 				print("Already Downloaded " + item + " episode.")
 		else:
 			print("Error")
 
+def writeID3(fileName,title,epNum,snNum,alb,albart,art):
+	try:
+		audio = ID3(fileName)
+		audio.delete()
+		audio = ID3()
+	except ID3NoHeaderError:
+		audio = ID3()
+	audio.add(TIT2(encoding=3, text=title)) 
+	if epNum != "":
+		audio.add(TRCK(encoding=3, text=epNum))
+	else:
+		print("No Ep Num")
+	if snNum != "":
+		audio.add(TPOS(encoding=3, text=snNum))
+	else:
+		print("No Sn Num")
+	audio.add(TPE1(encoding=3, text=art))
+	audio.add(TPE2(encoding=3, text=albart))
+	audio.add(TALB(encoding=3, text=alb))
+	audio.save(fileName)
+
+
 print(config_Sections)
 print(history_Sections)
-unnamedFunction(config_Sections,history_Sections,rssparams)
+getPodcasts(config_Sections,history_Sections,rssparams)
