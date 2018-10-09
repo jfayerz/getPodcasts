@@ -25,13 +25,7 @@ Future plans include:
 * ~~standardize way to get episode number from non-standard location~~
 * option to present a list of the most recent n episodes and select for download
 
-## testFunction.py
-
-- This script was to test the unnamedFunction() i created to handle the downloading.
-- This works now in that it downloads the episodes and doesn't throw any errors
-- it also writes the url and date to the podHistory file now
 - also, it checks the podHistory file and does not download the file if it finds the url in the last\_url field
-
 
 ## things that don't work
 
