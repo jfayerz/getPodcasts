@@ -5,7 +5,7 @@ Notes:
 testpython.py
 the purpose of this is to test the function that I wrote
 """
-import json
+import re
 import feedparser
 import urllib
 import configparser
@@ -17,14 +17,14 @@ from mutagen.id3 import TIT2, TALB, TPE1, TPE2, TRCK, TPOS
 todays_date = str(date.today())
 configFile = 'podConfig'
 histFile = 'podHistory'
-
+rssparams = 'rssparams'
 config = configparser.ConfigParser()
+
 history = configparser.ConfigParser()
 config.read(configFile)
 history.read(histFile)
 config_Sections = config.sections()
 history_Sections = history.sections()
-rssparams = 'rssparams'
 
 def get_episode_num(s,parameters):
 #function to get episode number from non standard location
@@ -33,7 +33,8 @@ def get_episode_num(s,parameters):
 	foo2 = parameters[2]
 	bar2 = int(parameters[3])
 	name = s.partition(foo1)[bar1]
-	return name.partition(foo2)[bar2]
+	return re.sub('[A-Za-z]','', name.partition(foo2)[bar2])
+	#return re.sub('[A-Za-z]','',name)
 
 def getPodcasts(config_Sections,history_Sections,rssparams):
 	for item in config_Sections:
@@ -44,7 +45,7 @@ def getPodcasts(config_Sections,history_Sections,rssparams):
 		if i != "":
 			params = i.split(",")
 		title = rss.entries[rss_param_left].title.rstrip()
-		fileName = title + ".mp3"
+		fileName = re.sub('/',' ', title) + ".mp3"
 		artist = config[item]['artist']
 		album = config[item]['album']
 		album_artist = config[item]['album_artist']
@@ -53,20 +54,20 @@ def getPodcasts(config_Sections,history_Sections,rssparams):
 			url = rss.entries[rss_param_left].links[rss_param_right].href.partition("?")[0].rstrip()
 		else:
 			url = rss.entries[rss_param_left].links[rss_param_right].href
-		if config[item]['eploc']:
+		if config[item]['eploc'] == '':
 			if config[item]['epnum'] == 'no':
 				epNum = ''
 			else:
 				epNum = rss.entries[rss_param_left].itunes_episode
-		elif config[item]['eploc'] == "title":
+		elif config[item]['eploc'] == 'title':
 			epNum = get_episode_num(title,params)
 		else:
 			epNum = get_episode_num(url,params)
-		if config[item]['snnum'] == "yes":
+		if config[item]['snnum'] == 'yes':
 			snNum = rss.entries[rss_param_left].itunes_season
 		else:
 			snNum = ''
-		fileName = title + ".mp3"
+		#fileName = title + ".mp3"
 		if item in history_Sections:
 			if url != last_url:
 				history[item]['last_url'] = url
@@ -103,6 +104,4 @@ def writeID3(fileName,title,epNum,snNum,alb,albart,art):
 	audio.save(fileName)
 
 
-print(config_Sections)
-print(history_Sections)
 getPodcasts(config_Sections,history_Sections,rssparams)
