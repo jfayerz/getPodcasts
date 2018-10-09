@@ -46,6 +46,7 @@ def getPodcasts(config_Sections,history_Sections,rssparams):
 	for item in config_Sections:
 		rss_param_left = int(config[item][rssparams].split(",")[0])
 		rss_param_right = int(config[item][rssparams].split(",")[1])
+		print("Getting rss info for " + item + ".")
 		rss = feedparser.parse(config[item]['rss'])
 		if config[item]['podpath'] != "":
 			podPath = config[item]['podpath']
