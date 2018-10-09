@@ -1,381 +1,113 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 """
-python script to get the most recent podcast episode from the rss feed
-this is a python3 script
+Notes:
+Simple podcast downloader
+- gets the rss
+- gets the url
+- downloads the most recent episode
+- edits the metadata
+
+written by Jonathan Ayers
+https://github.com/jfayerz/getPodcasts
 """
-
-import urllib
-
+import re
 import feedparser
+import urllib
+import configparser
+from datetime import date
 from mutagen.id3 import ID3NoHeaderError
 from mutagen.id3 import ID3
 from mutagen.id3 import TIT2, TALB, TPE1, TPE2, TRCK, TPOS
 
-	"""
-	Notes:
-	configparser
-	configparser.ConfigParser()
-	config = configparser.ConfigParser()
-	config.read(filename)
-	config['item']['subitem'] = 'new value'
-	with open(filename,"w") as f:
-		config.write(f) #this writes the whole file again, but using
-				#the config['item']['subitem'] format the only
-				#thing changing is that one field or whatever
-				#other fields you change
-	with open(filename,'a') as f: 	#this opens it in append mode
-					#useful for adding a new entry to
-					#the config file (e.g. a new podcast
-					#section of info
-	"""
-def unnamedFunction(): #rename? what am I passing to this function
-    for item in config.sections():
-        rss = feedparser.parse(item['rss'])
-        p1 = item['rssparams'].split(",")[0]
-        p2 = item['rssparams'].split(",")[1]
-        if item['urlFormat'] == 'questionmark':
-            url = rss.entries[p1].links[p2].href.partition("?")[0].rstrip()
-        else:
-            url = rss.entries[p1].links[p2].href
-        if item in history.sections():
-            if url != history[item]['last_url']:
-                history[item]['last_url'] = url
-                with open('podHistory','w') as pH:
-                    history.write(pH)               #writes entire podHistory
-                                                    #file with new information 
-                                                    #in the matching item 
-                                                    #last_url field
-                urllib.request.urlretrieve(url,fileName)
-            else:
-                print("Already Downloaded " + item + " episode.")
-        else:
-            print("Error")
-                
-
-def downloadEp(url,fileName):
-	urllib.request.urlretrieve(url, fileName)
-	
-
-def get_episode_num(s, delim1, pos1, delim2, pos2):
-    """
-    function to get episode number from non standard location
-
-    Args:
-        s:
-        delim1:
-        pos1:
-        delim2:
-        pos2:
-
-    Returns:
-    """
-    name = s.partition(delim1)[pos1]
-    return name.partition(delim2)[pos2]
-
-
-def update_last_url(s):
-    """
-    function to update "last_url" for each podcast entry in the json dictionary
-
-    Args:
-        s:
-
-    Returns:
-
-    """
-    if s == podcast['last_url']:
-        print("Already Downloaded" + title + ".")
-    else:
-        print("Last URL updated for podcast: " + podcast['name'] + ".")
-	return podcast['last_url']
-
-
-# opens and loads the podcast dictionary
+todays_date = str(date.today())
+configFile = 'podConfig'
+histFile = 'podHistory'
+rssparams = 'rssparams'
 config = configparser.ConfigParser()
+
 history = configparser.ConfigParser()
-config.read('podConfig')
-history.read('podHistory')
+config.read(configFile)
+history.read(histFile)
+config_Sections = config.sections()
+history_Sections = history.sections()
 
-for item in config:
-	rss = feedparser.parse(item['rss'])
-	if item['epnum'] == 'yes' and item['snnum'] == 'yes':
-		if item['urlFormat'] == 'questionmark':
-			
-			url = rss.entries[0].links[1].href.partition("?")[0].rstrip()
-			if url == history[item]['last_url']
-			title = rss.entries[0].title.rstrip()
-			episodeNum = rss.entries[0].itunes_episode
-			seasonNum = rss.entries[0].itunes_season
-			filename = title + ".mp3"
+def get_episode_num(s,parameters):
+#function to get episode number from non standard location
+	foo1 = parameters[0]
+	bar1 = int(parameters[1])
+	foo2 = parameters[2]
+	bar2 = int(parameters[3])
+	name = s.partition(foo1)[bar1]
+	return re.sub('[A-Za-z]','', name.partition(foo2)[bar2])
+	#return re.sub('[A-Za-z]','',name)
 
-			try:
-				audio.ID3(filename)
-				audio.delete()
-				audio.ID3()
-			except ID3NoHeaderError:
-				audio.ID3()
-			
-			# add title
-            		audio.add(TIT2(encoding=3, text=title))
-
-            		# add track number
-            		audio.add(TRCK(encoding=3, text=episodeNum))
-
-            		# add season number 
-			audio.add(TPOS(encoding=3, text=seasonNum))
-
-            		# add artist
-            		audio.add(TPE1(encoding=3, text=item['artist']))
-
-            		# add album artist
-            		audio.add(TPE2(encoding=3, text=item['album_artist']))
-
-            		# add album
-            		audio.add(TALB(encoding=3, text=item['album']))
-            		audio.save(filename) 
-
-for podcast in info:
-    rss = feedparser.parse(podcast['rss'])
-    if podcast['episode_number'] == 'yes' and podcast['season_number'] == 'yes':
-        if podcast['urlFormat'] == 'questionmark':
-            url = rss.entries[0].links[1].href.partition("?")[0].rstrip()
-            title = rss.entries[0].title.rstrip()
-            episodeNum = d.entries[0].itunes_episode
-            seasonNum = d.entries[0].itunes_season
-            fileName = title + ".mp3"
-            urllib.request.urlretrieve(url, fileName)
-
-            try:
-                # checks to see if the file has existing ID3
-                # and if so, blanks it out for consistency
-                audio = ID3(fileName)
-                audio.delete()
-                # creates and ID3 space to add tags until they 
-                # are ready to be saved to the .mp3 file
-                audio = ID3()
-            except ID3NoHeaderError:
-                print("Adding ID3 header")
-                audio = ID3()
-
-            # add title
-            audio.add(TIT2(encoding=3, text=title))
-
-            # add track number
-            audio.add(TRCK(encoding=3, text=episodeNum))
-
-            # add season number (disc)
-            audio.add(TPOS(encoding=3, text=seasonNum))
-
-            # add artist
-            audio.add(TPE1(encoding=3, text=podcast['artist']))
-
-            # add album artist
-            audio.add(TPE2(encoding=3, text=podcast['album_artist']))
-
-            # add album
-            audio.add(TALB(encoding=3, text=podcast['album']))
-            audio.save(fileName) 
-            
-            # This save function only saves the ID3 tags, it does 
-            # not resave the mp3. So, if you don't have it pointed 
-            # at the actual file location it will just save a text 
-            # file full of metadata that will be useless
-            
-        elif podcast['host'] == 'art19':
-            url = d.entries[0].links[0].href
-            title = d.entries[0].title.rstrip()
-            episodeNum = d.entries[0].itunes_episode
-            seasonNum = d.entries[0].itunes_season
-            fileName = title + ".mp3"
-            urllib.request.urlretrieve(url, fileName)
-
-            try:
-                audio = ID3(fileName)
-                audio.delete()
-                audio = ID3()
-            except ID3NoHeaderError:
-                print("Adding ID3 header")
-                audio = ID3()
-
-            audio.add(TIT2(encoding=3, text=title))  # add title
-            audio.add(TRCK(encoding=3, text=episodeNum))  # add track number
-            audio.add(TPOS(encoding=3, text=seasonNum))  # add season number
-            audio.add(TPE1(encoding=3, text=podcast['artist']))  # add artist
-            audio.add(TPE2(encoding=3, text=podcast['album_artist']))  # add album artist
-            audio.add(TALB(encoding=3, text=podcast['album']))  # add album
-            audio.save(fileName)
-            """
-            audio = eyed3.load(fileName)
-            audio.tag.title = title
-            audio.tag.track_num = episodeNum
-            audio.tag.disc_num = seasonNum
-            audio.tag.artist = podcast['artist']
-            audio.tag.album_artist = podcast['album_artist']
-            audio.tag.album = podcast['album']
-            audio.tag.save(version=(2,4,0))
-            """
-        else:
-            url = d.entries[0].links[1].href
-            title = d.entries[0].title.rstrip()
-            episodeNum = d.entries[0].itunes_episode
-            seasonNum = d.entries[0].itunes_season
-            fileName = title + ".mp3"
-            urllib.request.urlretrieve(url, fileName)
-
-            try:
-                audio = ID3(fileName)
-                audio.delete()
-                audio = ID3()
-            except ID3NoHeaderError:
-                print("Adding ID3 header")
-                audio = ID3()
-
-            audio.add(TIT2(encoding=3, text=title))  # add title
-            audio.add(TRCK(encoding=3, text=episodeNum))  # add track number
-            audio.add(TPOS(encoding=3, text=seasonNum))  # add season number
-            audio.add(TPE1(encoding=3, text=podcast['artist']))  # add artist
-            audio.add(TPE2(encoding=3, text=podcast['album_artist']))  # add album artist
-            audio.add(TALB(encoding=3, text=podcast['album']))  # add album
-            audio.save(fileName)
-    elif podcast['episode_number'] == 'yes' and podcast['season_number'] == 'no':
-        if podcast['host'] == 'libsyn':
-            url = d.entries[0].links[1].href.partition("?")[0].rstrip()
-            title = d.entries[0].title.rstrip()
-            episodeNum = d.entries[0].itunes_episode
-            fileName = title + ".mp3"
-            urllib.request.urlretrieve(url, fileName)
-
-            try:
-                audio = ID3(fileName)
-                audio.delete()
-                audio = ID3()
-            except ID3NoHeaderError:
-                print("Adding ID3 header")
-                audio = ID3()
-
-            audio.add(TIT2(encoding=3, text=title))  # add title
-            audio.add(TRCK(encoding=3, text=episodeNum))  # add track number
-            audio.add(TPE1(encoding=3, text=podcast['artist']))  # add artist
-            audio.add(TPE2(encoding=3, text=podcast['album_artist']))  # add album artist
-            audio.add(TALB(encoding=3, text=podcast['album']))  # add album
-            audio.save(fileName)
-        elif podcast['host'] == 'art19':
-            url = d.entries[0].links[0].href
-            title = d.entries[0].title.rstrip()
-            episodeNum = d.entries[0].itunes_episode
-            fileName = title + ".mp3"
-            urllib.request.urlretrieve(url, fileName)
-
-            try:
-                audio = ID3(fileName)
-                audio.delete()
-                audio = ID3()
-            except ID3NoHeaderError:
-                print("Adding ID3 header")
-                audio = ID3()
-
-            audio.add(TIT2(encoding=3, text=title))  # add title
-            audio.add(TRCK(encoding=3, text=episodeNum))  # add track number
-            audio.add(TPE1(encoding=3, text=podcast['artist']))  # add artist
-            audio.add(TPE2(encoding=3, text=podcast['album_artist']))  # add album artist
-            audio.add(TALB(encoding=3, text=podcast['album']))  # add album
-            audio.save(fileName)
-        else:
-            url = d.entries[0].links[1].href
-            title = d.entries[0].title.rstrip()
-            episodeNum = d.entries[0].itunes_episode
-            fileName = title + ".mp3"
-            urllib.request.urlretrieve(url, fileName)
-
-            try:
-                audio = ID3(fileName)
-                audio.delete()
-                audio = ID3()
-            except ID3NoHeaderError:
-                print("Adding ID3 header")
-                audio = ID3()
-
-            audio.add(TIT2(encoding=3, text=title))  # add title
-            audio.add(TRCK(encoding=3, text=episodeNum))  # add track number
-            audio.add(TPE1(encoding=3, text=podcast['artist']))  # add artist
-            audio.add(TPE2(encoding=3, text=podcast['album_artist']))  # add album artist
-            audio.add(TALB(encoding=3, text=podcast['album']))  # add album
-            audio.save(fileName)
-    elif podcast['episode_number'] == 'no':
-        if podcast['host'] == 'libsyn':
-            url = d.entries[0].links[1].href.partition("?")[0].rstrip()
-			if url == podcast['last_url']
-				print("Episode already downloaded on " + podcast['last_downloaded'] + ".")
+def getPodcasts(config_Sections,history_Sections,rssparams):
+	for item in config_Sections:
+		rss_param_left = int(config[item][rssparams].split(",")[0])
+		rss_param_right = int(config[item][rssparams].split(",")[1])
+		rss = feedparser.parse(config[item]['rss'])
+		i = config.get(item,"parameters")
+		if i != "":
+			params = i.split(",")
+		title = rss.entries[rss_param_left].title.rstrip()
+		fileName = re.sub('/',' ', title) + ".mp3"
+		artist = config[item]['artist']
+		album = config[item]['album']
+		album_artist = config[item]['album_artist']
+		last_url = history[item]['last_url']
+		if config[item]['urlFormat'] == 'questionmark':
+			url = rss.entries[rss_param_left].links[rss_param_right].href.partition("?")[0].rstrip()
+		else:
+			url = rss.entries[rss_param_left].links[rss_param_right].href
+		if config[item]['eploc'] == '':
+			if config[item]['epnum'] == 'no':
+				epNum = ''
 			else:
-				tmpURL = podcast['last_url']
-				tmpDate = podcast['last_downloaded']
-				podcast['last_url'] = url
-				podcast['last_downloaded'] = str(date.today())
-				with open('podDictionary.json', 'w') as podcasts:
-					json.dump(podcast,podcasts)
-				title = d.entries[0].title.rstrip()
-	            fileName = title + ".mp3"
-    		        if podcast['epNumLoc'] == "title":
-            		    episodeNum = get_episode_num(title, podcast['delim1'], int(podcast['position1']), podcast['delim2'], int(podcast['position2']))
-		            elif podcast['epNumLoc'] == "filename":
-        		        episodeNum = get_episode_num(url, podcast['delim1'], int(podcast['position1']), podcast['delim2'], int(podcast['position2']))
-		            else:
-        		        print("No episode location defined")
+				epNum = rss.entries[rss_param_left].itunes_episode
+		elif config[item]['eploc'] == 'title':
+			epNum = get_episode_num(title,params)
+		else:
+			epNum = get_episode_num(url,params)
+		if config[item]['snnum'] == 'yes':
+			snNum = rss.entries[rss_param_left].itunes_season
+		else:
+			snNum = ''
+		#fileName = title + ".mp3"
+		if item in history_Sections:
+			if url != last_url:
+				history[item]['last_url'] = url
+				history[item]['last_downloaded_date'] = todays_date
+				with open('podHistory','w') as pH:
+					history.write(pH)   				
+				print("Downloading " + title + " from the " + item + " podcast.")
+				urllib.request.urlretrieve(url,fileName)
+				writeID3(fileName,title,epNum,snNum,album,album_artist,artist)
+			else:
+				print("Already Downloaded " + item + " episode.")
+		else:
+			print("Error")
 
-        		    # episodeNum = d.entries[0].title.partition(" ")[0].rstrip()
+def writeID3(fileName,title,epNum,snNum,alb,albart,art):
+	try:
+		audio = ID3(fileName)
+		audio.delete()
+		audio = ID3()
+	except ID3NoHeaderError:
+		audio = ID3()
+	audio.add(TIT2(encoding=3, text=title)) 
+	if epNum != "":
+		audio.add(TRCK(encoding=3, text=epNum))
+	else:
+		print("No Ep Num")
+	if snNum != "":
+		audio.add(TPOS(encoding=3, text=snNum))
+	else:
+		print("No Sn Num")
+	audio.add(TPE1(encoding=3, text=art))
+	audio.add(TPE2(encoding=3, text=albart))
+	audio.add(TALB(encoding=3, text=alb))
+	audio.save(fileName)
 
-		        urllib.request.urlretrieve(url, fileName)
 
-            try:
-                audio = ID3(fileName)
-                audio.delete()
-                audio = ID3()
-            except ID3NoHeaderError:
-                print("Adding ID3 header")
-                audio = ID3()
-
-            audio.add(TIT2(encoding=3, text=title))  # add title
-            audio.add(TRCK(encoding=3, text=episodeNum))  # add track number
-            audio.add(TPE1(encoding=3, text=podcast['artist']))  # add artist
-            audio.add(TPE2(encoding=3, text=podcast['album_artist']))  # add album artist
-            audio.add(TALB(encoding=3, text=podcast['album']))  # add album
-            audio.save(fileName)
-        elif podcast['host'] == 'art19':
-            url = d.entries[0].links[0].href
-            title = d.entries[0].title.rstrip()
-            fileName = title + ".mp3"
-            urllib.request.urlretrieve(url, fileName)
-
-            try:
-                audio = ID3(fileName)
-                audio.delete()
-                audio = ID3()
-            except ID3NoHeaderError:
-                print("Adding ID3 header")
-                audio = ID3()
-
-            audio.add(TIT2(encoding=3, text=title))  # add title
-            audio.add(TPE1(encoding=3, text=podcast['artist']))  # add artist
-            audio.add(TPE2(encoding=3, text=podcast['album_artist']))  # add album artist
-            audio.add(TALB(encoding=3, text=podcast['album']))  # add album
-            audio.save(fileName)
-        else:
-            url = d.entries[0].links[1].href
-            title = d.entries[0].title.rstrip()
-            fileName = title + ".mp3"
-            urllib.request.urlretrieve(url, fileName)
-
-            try:
-                audio = ID3(fileName)
-                audio.delete()
-                audio = ID3()
-            except ID3NoHeaderError:
-                print("Adding ID3 header")
-                audio = ID3()
-
-            audio.add(TIT2(encoding=3, text=title))  # add title
-            audio.add(TPE1(encoding=3, text=podcast['artist']))  # add artist
-            audio.add(TPE2(encoding=3, text=podcast['album_artist']))  # add album artist
-            audio.add(TALB(encoding=3, text=podcast['album']))  # add album
-            audio.save(fileName)
+getPodcasts(config_Sections,history_Sections,rssparams)

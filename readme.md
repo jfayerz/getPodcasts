@@ -35,9 +35,11 @@ Future plans include:
 
 ## things that don't work
 
-- it's not putting the correct / complete url into the podHistory file for some of the podcasts
-- also, i don't believe it's actually downloading those episodes either. 
-- this points to a problem with the "partition" parts of the script that are designed to get the mp3url.  
-- also, and this is universal at this point, it is not writing the episode number to the metadata.
-- it *is* writing the season (disc) number to the metadata
-- i'm not sure if it's just failing to get the episode number or if there's something wrong with the write.
+- ~~it's not putting the correct / complete url into the podHistory file for some of the podcasts~~
+- ~~also, i don't believe it's actually downloading those episodes either.~~
+- ~~this points to a problem with the "partition" parts of the script that are designed to get the mp3url~~
+- ~~also, and this is universal at this point, it is not writing the episode number to the metadata.~~
+- ~~it *is* writing the season (disc) number to the metadata~~
+- ~~i'm not sure if it's just failing to get the episode number or if there's something wrong with the write.~~
+- The above items were all due to a problem with an if/then statment and some incorrect rssparameters information in the podConfig file
+- All resolved 10/09/2018
