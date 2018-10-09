@@ -22,7 +22,7 @@ parameters =
 eploc = 
 epnum = yes
 snnum = yes
-rssparams = 0,0
+rssparams = 0,1
 
 [archive81]
 name = archive81
@@ -35,7 +35,7 @@ parameters =
 eploc = 
 epnum = yes
 snnum = yes
-rssparams = 0,0
+rssparams = 0,1
 
 [cashing]
 name = cashing
@@ -48,7 +48,7 @@ parameters = r/,2,_,0
 eploc = urlFilename
 epnum = no
 snnum = no
-rssparams = 0,0
+rssparams = 0,1
 
 [genwhy]
 name = genwhy
