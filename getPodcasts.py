@@ -47,6 +47,8 @@ def getPodcasts(config_Sections,history_Sections,rssparams):
 		rss_param_left = int(config[item][rssparams].split(",")[0])
 		rss_param_right = int(config[item][rssparams].split(",")[1])
 		rss = feedparser.parse(config[item]['rss'])
+		if config[item]['podpath'] != "":
+			podPath = config[item]['podpath']
 		i = config.get(item,"parameters")
 		if i != "":
 			params = i.split(",")
@@ -81,16 +83,19 @@ def getPodcasts(config_Sections,history_Sections,rssparams):
 				with open('podHistory','w') as pH:
 					history.write(pH)   				
 				print("Downloading " + title + " from the " + item + " podcast.")
-				urllib.request.urlretrieve(url,fileName)
-				writeID3(fileName,title,epNum,snNum,album,album_artist,artist)
+				if podPath != "":
+					urllib.request.urlretrieve(url,podPath + fileName)
+				else:
+					urllib.request.urlretrieve(url,fileName)
+				writeID3(podPath,fileName,title,epNum,snNum,album,album_artist,artist)
 			else:
 				print("Already Downloaded " + item + " episode.")
 		else:
 			print("Error")
 
-def writeID3(fileName,title,epNum,snNum,alb,albart,art):
+def writeID3(podPath,fileName,title,epNum,snNum,alb,albart,art):
 	try:
-		audio = ID3(fileName)
+		audio = ID3(podPath + fileName)
 		audio.delete()
 		audio = ID3()
 	except ID3NoHeaderError:
@@ -107,7 +112,7 @@ def writeID3(fileName,title,epNum,snNum,alb,albart,art):
 	audio.add(TPE1(encoding=3, text=art))
 	audio.add(TPE2(encoding=3, text=albart))
 	audio.add(TALB(encoding=3, text=alb))
-	audio.save(fileName)
+	audio.save(podPath + fileName)
 
 
 getPodcasts(config_Sections,history_Sections,rssparams)

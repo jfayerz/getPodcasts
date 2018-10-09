@@ -10,6 +10,7 @@ eploc = title
 epnum = no
 snnum = no
 rssparams = 0,1
+podpath = /Plex/Disk2/Podcasts/TheDollop/
 
 [ltw]
 name = ltw
@@ -23,6 +24,7 @@ eploc =
 epnum = yes
 snnum = yes
 rssparams = 0,1
+podpath = /Plex/Disk2/Podcasts/LikeTrees/
 
 [archive81]
 name = archive81
@@ -36,6 +38,7 @@ eploc =
 epnum = yes
 snnum = yes
 rssparams = 0,1
+podpath = /Plex/Disk2/Podcasts/Archive81/
 
 [cashing]
 name = cashing
@@ -49,6 +52,7 @@ eploc = urlFilename
 epnum = no
 snnum = no
 rssparams = 0,1
+podpath = /Plex/Disk2/Podcasts/CashingIn/
 
 [genwhy]
 name = genwhy
@@ -62,6 +66,7 @@ eploc =
 epnum = yes
 snnum = no
 rssparams = 0,0
+podpath = /Plex/Disk2/Podcasts/GenWhy/
 
 [walkout]
 name = walkout
@@ -75,6 +80,7 @@ eploc =
 epnum = no
 snnum = no
 rssparams = 0,0
+podpath = /Plex/Disk2/Podcasts/Walk Out Boys/
 
 [pseudo]
 name = pseudo
@@ -88,3 +94,5 @@ eploc = title
 epnum = no
 snnum = no
 rssparams = 0,1
+podpath = /Plex/Disk2/Podcasts/PseudoPod/
+
