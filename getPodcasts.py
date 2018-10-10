@@ -39,7 +39,7 @@ def get_episode_num(s,parameters):
 	foo2 = parameters[2]
 	bar2 = int(parameters[3])
 	name = s.partition(foo1)[bar1]
-	return re.sub('[A-Za-z]','', name.partition(foo2)[bar2])
+	return re.sub('[A-Za-z]','', name.partition(foo2)[bar2]).strip()
 	#return re.sub('[A-Za-z]','',name)
 
 def getPodcasts(config_Sections,history_Sections,rssparams):
@@ -53,14 +53,14 @@ def getPodcasts(config_Sections,history_Sections,rssparams):
 		i = config.get(item,"parameters")
 		if i != "":
 			params = i.split(",")
-		title = rss.entries[rss_param_left].title.rstrip()
+		title = rss.entries[rss_param_left].title.strip()
 		fileName = re.sub('/',' ', title) + ".mp3"
 		artist = config[item]['artist']
 		album = config[item]['album']
 		album_artist = config[item]['album_artist']
 		last_url = history[item]['last_url']
 		if config[item]['urlFormat'] == 'questionmark':
-			url = rss.entries[rss_param_left].links[rss_param_right].href.partition("?")[0].rstrip()
+			url = rss.entries[rss_param_left].links[rss_param_right].href.partition("?")[0].strip()
 		else:
 			url = rss.entries[rss_param_left].links[rss_param_right].href
 		if config[item]['eploc'] == '':

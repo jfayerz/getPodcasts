@@ -29,6 +29,7 @@ Future plans include:
 * option to present a list of the most recent n episodes and select for download
 
 - also, it checks the podHistory file and does not download the file if it finds the url in the last\_url field
+- updated the episode number function to strip off all white space around the number
 
 ## things that don't work
 
