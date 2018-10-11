@@ -44,55 +44,58 @@ def get_episode_num(s,parameters):
 
 def getPodcasts(config_Sections,history_Sections,rssparams):
 	for item in config_Sections:
-		rss_param_left = int(config[item][rssparams].split(",")[0])
-		rss_param_right = int(config[item][rssparams].split(",")[1])
-		print("Getting rss info for " + item + ".")
-		rss = feedparser.parse(config[item]['rss'])
-		if config[item]['podpath'] != "":
-			podPath = config[item]['podpath']
-		i = config.get(item,"parameters")
-		if i != "":
-			params = i.split(",")
-		title = rss.entries[rss_param_left].title.strip()
-		fileName = re.sub('/',' ', title) + ".mp3"
-		artist = config[item]['artist']
-		album = config[item]['album']
-		album_artist = config[item]['album_artist']
-		last_url = history[item]['last_url']
-		if config[item]['urlFormat'] == 'questionmark':
-			url = rss.entries[rss_param_left].links[rss_param_right].href.partition("?")[0].strip()
-		else:
-			url = rss.entries[rss_param_left].links[rss_param_right].href
-		if config[item]['eploc'] == '':
-			if config[item]['epnum'] == 'no':
-				epNum = ''
+		if todays_date != history[item]['last_downloaded_date']:
+			rss_param_left = int(config[item][rssparams].split(",")[0])
+			rss_param_right = int(config[item][rssparams].split(",")[1])
+			print("Getting rss info for " + item + ".")
+			rss = feedparser.parse(config[item]['rss'])
+			if config[item]['podpath'] != "":
+				podPath = config[item]['podpath']
+			i = config.get(item,"parameters")
+			if i != "":
+				params = i.split(",")
+			title = rss.entries[rss_param_left].title.strip()
+			fileName = re.sub('/',' ', title) + ".mp3"
+			artist = config[item]['artist']
+			album = config[item]['album']
+			album_artist = config[item]['album_artist']
+			last_url = history[item]['last_url']
+			if config[item]['urlFormat'] == 'questionmark':
+				url = rss.entries[rss_param_left].links[rss_param_right].href.partition("?")[0].strip()
 			else:
-				epNum = rss.entries[rss_param_left].itunes_episode
-		elif config[item]['eploc'] == 'title':
-			epNum = get_episode_num(title,params)
-		else:
-			epNum = get_episode_num(url,params)
-		if config[item]['snnum'] == 'yes':
-			snNum = rss.entries[rss_param_left].itunes_season
-		else:
-			snNum = ''
-		#fileName = title + ".mp3"
-		if item in history_Sections:
-			if url != last_url:
-				history[item]['last_url'] = url
-				history[item]['last_downloaded_date'] = todays_date
-				with open('podHistory','w') as pH:
-					history.write(pH)   				
-				print("Downloading " + title + " from the " + item + " podcast.")
-				if podPath != "":
-					urllib.request.urlretrieve(url,podPath + fileName)
+				url = rss.entries[rss_param_left].links[rss_param_right].href
+			if config[item]['eploc'] == '':
+				if config[item]['epnum'] == 'no':
+					epNum = ''
 				else:
-					urllib.request.urlretrieve(url,fileName)
-				writeID3(podPath,fileName,title,epNum,snNum,album,album_artist,artist)
+					epNum = rss.entries[rss_param_left].itunes_episode
+			elif config[item]['eploc'] == 'title':
+				epNum = get_episode_num(title,params)
 			else:
-				print("Already Downloaded " + item + " episode.")
+				epNum = get_episode_num(url,params)
+			if config[item]['snnum'] == 'yes':
+				snNum = rss.entries[rss_param_left].itunes_season
+			else:
+				snNum = ''
+			#fileName = title + ".mp3"
+			if item in history_Sections:
+				if url != last_url:
+					history[item]['last_url'] = url
+					history[item]['last_downloaded_date'] = todays_date
+					with open('podHistory','w') as pH:
+						history.write(pH)   				
+					print("Downloading " + title + " from the " + item + " podcast.")
+					if podPath != "":
+						urllib.request.urlretrieve(url,podPath + fileName)
+					else:
+						urllib.request.urlretrieve(url,fileName)
+					writeID3(podPath,fileName,title,epNum,snNum,album,album_artist,artist)
+				else:
+					print("Already Downloaded " + item + " episode.")
+			else:
+				print("Error")
 		else:
-			print("Error")
+			print("Already checked " + config[item]['album'] + " podcast today.")
 
 def writeID3(podPath,fileName,title,epNum,snNum,alb,albart,art):
 	try:

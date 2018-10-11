@@ -30,6 +30,7 @@ Future plans include:
 
 - also, it checks the podHistory file and does not download the file if it finds the url in the last\_url field
 - updated the episode number function to strip off all white space around the number
+- added item that checks to see if an episode was already downloaded today
 
 ## things that don't work
 
