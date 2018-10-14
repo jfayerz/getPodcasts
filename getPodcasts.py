@@ -60,12 +60,20 @@ def getPodcasts(config_Sections,history_Sections,rssparams):
             album = config[item]['album']
             album_artist = config[item]['album_artist']
             last_url = history[item]['last_url']
-            position = rss.entries[0].links[1].href.find(".mp3")
+            position = rss.entries[0].links[0].href.find(".mp3")
             if position != -1:
-                url = rss.entries[0].links[1].href[0:(position + 4)]
+                if rss.entries[0].links[0].href.find(".mp3",(position + 4)) != -1:
+                    position2 = rss.entries[0].links[0].href.find(".mp3",(position + 4))
+                    url = rss.entries[0].links[0].href[0:(position2 + 4)]
+                else:
+                    url = rss.entries[0].links[0].href[0:(position + 4)]
             else:
-                position = rss.entries[0].links[0].href.find(".mp3")
-                url = rss.entries[0].links[0].href[0:(position + 4)]
+                position = rss.entries[0].links[1].href.find(".mp3")
+                if rss.entries[0].links[1].href.find(".mp3",(position + 4)) != -1:
+                    position2 = rss.entries[0].links[1].href.find(".mp3",(position + 4))
+                    url = rss.entries[0].links[1].href[0:(position2 + 4)]
+                else:
+                    url = rss.entries[0].links[1].href[0:(position + 4)]
             #if config[item]['urlFormat'] == 'questionmark':
             #   url = rss.entries[rss_param_left].links[rss_param_right].href.partition("?")[0].strip()
             #else:
@@ -92,9 +100,17 @@ def getPodcasts(config_Sections,history_Sections,rssparams):
                         history.write(pH)
                     print("Downloading " + title + " from the " + item + " podcast.")
                     if podPath != "":
-                        urllib.request.urlretrieve(url,podPath + fileName)
+                        try:
+                            urllib.request.urlretrieve(url,podPath + fileName)
+                        except urllib.error.HTTPError:
+                            print("Download error with " + title + " episode.")
+                            continue
                     else:
-                        urllib.request.urlretrieve(url,fileName)
+                        try:
+                            urllib.request.urlretrieve(url,podPath + fileName)
+                        except urllib.HTTPError:
+                            print("Download error with " + title + " episode.")
+                            continue
                     writeID3(podPath,fileName,title,epNum,snNum,album,album_artist,artist)
                 else:
                     print("Already Downloaded " + item + " episode.")
