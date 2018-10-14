@@ -60,10 +60,16 @@ def getPodcasts(config_Sections,history_Sections,rssparams):
 			album = config[item]['album']
 			album_artist = config[item]['album_artist']
 			last_url = history[item]['last_url']
-			if config[item]['urlFormat'] == 'questionmark':
-				url = rss.entries[rss_param_left].links[rss_param_right].href.partition("?")[0].strip()
-			else:
-				url = rss.entries[rss_param_left].links[rss_param_right].href
+            position = rss.entries[0].links[1].href.find(".mp3")
+            if position != -1:
+                url = rss.entries[0].links[1].href[0:(position + 4)]
+            else:
+                position = rss.entries[0].links[0].href.find(".mp3")
+                url = rss.entries[0].links[0].href[0:(position + 4)]
+            #if config[item]['urlFormat'] == 'questionmark':
+			#	url = rss.entries[rss_param_left].links[rss_param_right].href.partition("?")[0].strip()
+			#else:
+			#	url = rss.entries[rss_param_left].links[rss_param_right].href
 			if config[item]['eploc'] == '':
 				if config[item]['epnum'] == 'no':
 					epNum = ''
@@ -83,7 +89,7 @@ def getPodcasts(config_Sections,history_Sections,rssparams):
 					history[item]['last_url'] = url
 					history[item]['last_downloaded_date'] = todays_date
 					with open('podHistory','w') as pH:
-						history.write(pH)   				
+						history.write(pH)
 					print("Downloading " + title + " from the " + item + " podcast.")
 					if podPath != "":
 						urllib.request.urlretrieve(url,podPath + fileName)
@@ -104,7 +110,7 @@ def writeID3(podPath,fileName,title,epNum,snNum,alb,albart,art):
 		audio = ID3()
 	except ID3NoHeaderError:
 		audio = ID3()
-	audio.add(TIT2(encoding=3, text=title)) 
+	audio.add(TIT2(encoding=3, text=title))
 	if epNum != "":
 		audio.add(TRCK(encoding=3, text=epNum))
 	else:
