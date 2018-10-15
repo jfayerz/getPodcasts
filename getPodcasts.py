@@ -32,6 +32,15 @@ history.read(histFile)
 config_Sections = config.sections()
 history_Sections = history.sections()
 
+def getArrayInfo(rss_url):
+    rss = fp.parse(rss_url)
+    array1 = []
+    i = 0
+    while i <= len(rss.entries):
+        array1.append(rss.entries[i].title)
+        i += 1
+    return array1
+
 def get_episode_num(s,parameters):
 #function to get episode number from non standard location
     foo1 = parameters[0]
