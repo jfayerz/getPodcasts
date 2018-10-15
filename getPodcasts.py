@@ -39,7 +39,46 @@ def getArrayInfo(rss_url):
     while i <= len(rss.entries):
         array1.append(rss.entries[i].title)
         i += 1
-    return array1
+    return array1, rss
+
+def populateArray2(array):
+    i = len(array)
+    array2 = ["n"]
+    while i > 0:
+        a = str(i)
+        array2.append(a)
+        i -= 1
+    return array2
+
+def enterSelection(array2):
+    print("Enter the number of the podcast episode you wish to download." /
+          + "\nOr enter \"n\" for the next five episodes.")
+    selection = input("Enter your selection here: ")
+    if selection in array2:
+        return selection
+    else:
+        print("You have selected an option outside of the available range." /
+              + "Try again.")
+        return 0
+
+def getSelectionURL_Title(selection,rss):
+    selection = int(selection) - 1
+    title = rss.entries[selection].title
+    position = rss.entries[selection].links[0].href.find(".mp3")
+    if position != -1:
+        if rss.entries[selection].links[0].href.find".mp3",(position + 4)) != -1:
+            position2 = rss.entries[selection].links[0].href.find(".mp3",(position + 4))
+            url = rss.entries[selection].links[0].href[0:(position2 + 4)]
+        else:
+            url = rss.entries[selection].links[0].href[0:(position + 4)]
+    else:
+        position = rss.entries[selection].links[1].href.find(".mp3")
+        if rss.entries[selection].links[1].href.find(".mp3",(position + 4)) != -1:
+            position2 = rss.entries[selection].links[1].href.find(".mp3",(position + 4))
+            url = rss.entries[selection].links[1].href[0:(position2 + 4)]
+        else:
+            url = rss.entries[selection].links[1].href[0:(position + 4)]
+    return url,title
 
 def get_episode_num(s,parameters):
 #function to get episode number from non standard location
