@@ -11,10 +11,20 @@ Simple podcast downloader
 written by Jonathan Ayers
 https://github.com/jfayerz/getPodcasts
 """
+#TODO:
+#   - Not listing out first five most recent episodes
+#   - No entry in the question for selection downloads the oldest ep
+#   - No logic is set up to handle "n" in selection
+#   - Not parsing "/" in the title correctly for file name
+#   - Need to add additional option to skip
+#   - Add option at the beginning to just go through all podcasts and download
+#       the most recent episodes only
+#   - Add option to pick podcast from a list and work only with its episodes
+
 import re
-import feedparser
+import feedparser as fp
 import urllib
-import configparser
+import configparser as cp
 from datetime import date
 from mutagen.id3 import ID3NoHeaderError
 from mutagen.id3 import ID3
@@ -24,61 +34,70 @@ todays_date = str(date.today())
 configFile = 'podConfig'
 histFile = 'podHistory'
 rssparams = 'rssparams'
-config = configparser.ConfigParser()
+config = cp.ConfigParser()
 
-history = configparser.ConfigParser()
+history = cp.ConfigParser()
 config.read(configFile)
 history.read(histFile)
 config_Sections = config.sections()
 history_Sections = history.sections()
 
-def getArrayInfo(rss_url):
+def get_parsed_rss(rss_url):
     rss = fp.parse(rss_url)
-    array1 = []
+    parsedRSSFeed = []
     i = 0
-    while i <= len(rss.entries):
-        array1.append(rss.entries[i].title)
+    while i <= (len(rss.entries) - 1):
+        parsedRSSFeed.append(rss.entries[i].title)
         i += 1
-    return array1, rss
+    return rss,parsedRSSFeed
 
-def populateArray2(array):
-    i = len(array)
-    array2 = ["n"]
+def selection_options(rss_feed_list):
+    i = len(rss_feed_list)
+    selection_list = ["n"]
     while i > 0:
         a = str(i)
-        array2.append(a)
+        selection_list.append(a)
         i -= 1
-    return array2
+    return selection_list   # returns list populated with options from 
+                             # 1 thr ough the last option plus 'n'
 
-def enterSelection(array2):
-    print("Enter the number of the podcast episode you wish to download." /
-          + "\nOr enter \"n\" for the next five episodes.")
+def enterSelection(rss_feed_list):
+    print("Enter the number of the podcast episode you wish to download.",
+          "\nOr enter \"n\" for the next five episodes.")
     selection = input("Enter your selection here: ")
-    if selection in array2:
-        return selection
-    else:
-        print("You have selected an option outside of the available range." /
-              + "Try again.")
+    if selection in rss_feed_list:
+        return selection    # returns option to be used as an int
+    else:                   # to select episode from entries
+        print("You have selected an option outside of the available range.",
+              "Try again.")
         return 0
 
 def getSelectionURL_Title(selection,rss):
     selection = int(selection) - 1
     title = rss.entries[selection].title
     position = rss.entries[selection].links[0].href.find(".mp3")
+    x = rss.entries[selection].links[0].href
+    try:
+        y = rss.entries[selection].links[1].href
+    except:
+        pass
     if position != -1:
-        if rss.entries[selection].links[0].href.find".mp3",(position + 4)) != -1:
-            position2 = rss.entries[selection].links[0].href.find(".mp3",(position + 4))
-            url = rss.entries[selection].links[0].href[0:(position2 + 4)]
+        if x.find(".mp3",(position + 4)) != -1:
+            position2 = x.find(".mp3",(position + 4))
+            url = x[0:(position2 + 4)]
         else:
-            url = rss.entries[selection].links[0].href[0:(position + 4)]
+            url = x[0:(position + 4)]
     else:
-        position = rss.entries[selection].links[1].href.find(".mp3")
-        if rss.entries[selection].links[1].href.find(".mp3",(position + 4)) != -1:
-            position2 = rss.entries[selection].links[1].href.find(".mp3",(position + 4))
-            url = rss.entries[selection].links[1].href[0:(position2 + 4)]
+        position = y.find(".mp3")
+        if y.find(".mp3",(position + 4)) != -1:
+            position2 = y.find(".mp3",(position + 4))
+            url = y[0:(position2 + 4)]
         else:
-            url = rss.entries[selection].links[1].href[0:(position + 4)]
-    return url,title
+            url = y[0:(position + 4)]
+    return [url,title]  # returns a list with the mp3 download url of the
+                        # selection and the title of the selection
+                        #TODO: eventually add the ability to select more than
+                        # one
 
 def get_episode_num(s,parameters):
 #function to get episode number from non standard location
@@ -89,83 +108,6 @@ def get_episode_num(s,parameters):
     name = s.partition(foo1)[bar1]
     return re.sub('[A-Za-z]','', name.partition(foo2)[bar2]).strip()
     #return re.sub('[A-Za-z]','',name)
-
-def getPodcasts(config_Sections,history_Sections,rssparams):
-    for item in config_Sections:
-        if todays_date != history[item]['last_downloaded_date']:
-            rss_param_left = int(config[item][rssparams].split(",")[0])
-            rss_param_right = int(config[item][rssparams].split(",")[1])
-            print("Getting rss info for " + item + ".")
-            rss = feedparser.parse(config[item]['rss'])
-            if config[item]['podpath'] != "":
-                podPath = config[item]['podpath']
-            i = config.get(item,"parameters")
-            if i != "":
-                params = i.split(",")
-            title = rss.entries[rss_param_left].title.strip()
-            fileName = re.sub('/',' ', title) + ".mp3"
-            artist = config[item]['artist']
-            album = config[item]['album']
-            album_artist = config[item]['album_artist']
-            last_url = history[item]['last_url']
-            position = rss.entries[0].links[0].href.find(".mp3")
-            if position != -1:
-                if rss.entries[0].links[0].href.find(".mp3",(position + 4)) != -1:
-                    position2 = rss.entries[0].links[0].href.find(".mp3",(position + 4))
-                    url = rss.entries[0].links[0].href[0:(position2 + 4)]
-                else:
-                    url = rss.entries[0].links[0].href[0:(position + 4)]
-            else:
-                position = rss.entries[0].links[1].href.find(".mp3")
-                if rss.entries[0].links[1].href.find(".mp3",(position + 4)) != -1:
-                    position2 = rss.entries[0].links[1].href.find(".mp3",(position + 4))
-                    url = rss.entries[0].links[1].href[0:(position2 + 4)]
-                else:
-                    url = rss.entries[0].links[1].href[0:(position + 4)]
-            #if config[item]['urlFormat'] == 'questionmark':
-            #   url = rss.entries[rss_param_left].links[rss_param_right].href.partition("?")[0].strip()
-            #else:
-            #   url = rss.entries[rss_param_left].links[rss_param_right].href
-            if config[item]['eploc'] == '':
-                if config[item]['epnum'] == 'no':
-                    epNum = ''
-                else:
-                    epNum = rss.entries[rss_param_left].itunes_episode
-            elif config[item]['eploc'] == 'title':
-                epNum = get_episode_num(title,params)
-            else:
-                epNum = get_episode_num(url,params)
-            if config[item]['snnum'] == 'yes':
-                snNum = rss.entries[rss_param_left].itunes_season
-            else:
-                snNum = ''
-            #fileName = title + ".mp3"
-            if item in history_Sections:
-                if url != last_url:
-                    history[item]['last_url'] = url
-                    history[item]['last_downloaded_date'] = todays_date
-                    with open('podHistory','w') as pH:
-                        history.write(pH)
-                    print("Downloading " + title + " from the " + item + " podcast.")
-                    if podPath != "":
-                        try:
-                            urllib.request.urlretrieve(url,podPath + fileName)
-                        except urllib.error.HTTPError:
-                            print("Download error with " + title + " episode.")
-                            continue
-                    else:
-                        try:
-                            urllib.request.urlretrieve(url,podPath + fileName)
-                        except urllib.HTTPError:
-                            print("Download error with " + title + " episode.")
-                            continue
-                    writeID3(podPath,fileName,title,epNum,snNum,album,album_artist,artist)
-                else:
-                    print("Already Downloaded " + item + " episode.")
-            else:
-                print("Error")
-        else:
-            print("Already checked " + config[item]['album'] + " podcast today.")
 
 def writeID3(podPath,fileName,title,epNum,snNum,alb,albart,art):
     try:
@@ -188,5 +130,61 @@ def writeID3(podPath,fileName,title,epNum,snNum,alb,albart,art):
     audio.add(TALB(encoding=3, text=alb))
     audio.save(podPath + fileName)
 
+def download_selection(url_title_List, history_info,item):
+    if history_info[item]['last_downloaded_date'] == todays_date:
+        print("Already checked " + item + " podcast today.")
+    elif history_info[item]['last_url'] == url_title_List[0]:
+            print("Already downloaded this episode: ", url_title_List[1])
+    else:
+        print("Downloading episode: ", url_title_List[1])
+        urllib.request.urlretrieve(
+            url_title_List[0],
+            url_title_List[2] +
+            url_title_List[1] + ".mp3")
+        history_info[item]['last_url'] == url_title_List[0]
+        history_info[item]['last_downloaded_date'] == todays_date
+        with open(histFile,'w') as hist:
+            history_info.write(hist)
+        fileName = url_title_List[1] + ".mp3"
+        return fileName
 
-getPodcasts(config_Sections,history_Sections,rssparams)
+
+
+for item in config_Sections:
+    rss_url = config[item]['rss']
+    rss,parsedRSSFeed = get_parsed_rss(rss_url)
+    selection_list = selection_options(parsedRSSFeed)
+    selection = enterSelection(selection_list)
+    episodeDownloadInfo = getSelectionURL_Title(selection,rss)
+    title = episodeDownloadInfo[1]
+    url = episodeDownloadInfo[0]
+    if config[item]['podpath'] != "":       # get path for saving .mp3
+        podPath = config[item]['podpath']   #
+    else:
+        podPath = ""
+    episodeDownloadInfo.append(podPath)
+    fileName = download_selection(episodeDownloadInfo, history, item)
+    i = config.get(item,"parameters")
+    if i != "":                     # checking to see if the parameters
+        params = i.split(",")       # option under the selection is populated
+    if config[item]['eploc'] == '': # checks to see where the ep# is located
+        if config[item]['epnum'] == 'no':   # no episode number indicated
+            epNum = ''
+        else:
+            epNum = rss.entries[0].itunes_episode   # assumes "yes", gets ep#
+    elif config[item]['eploc'] == 'title':  # is item set to "title" for pod ep
+        epNum = get_episode_num(title,params)   # gets ep from title
+    else:
+        epNum = get_episode_num(url,params) # gets ep from url
+    if config[item]['snnum'] == 'yes':  # checks for season number
+        snNum = rss.entries[0].itunes_season # gets from metadata
+    else:
+        snNum = ''
+    artist = config[item]['artist']
+    album = config[item]['album']
+    album_artist = config[item]['album_artist']
+    writeID3(podPath,fileName,title,epNum,snNum,album,album_artist,artist)
+    print("File Saved.\nMetadata written.\n")
+
+# getPodcasts(config_Sections,history_Sections,rssparams)
+
