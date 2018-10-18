@@ -25,6 +25,8 @@ https://github.com/jfayerz/getPodcasts
 #       know what to do
 #       * a try/except combo won't do it
 #       * need to use algorithm based on len(rss.entries)
+#   - option to continue scrolling down list of episodes after downloading
+#       your first selection
 
 import re
 import feedparser as fp
@@ -88,18 +90,13 @@ def enterSelection(options,rss):
               "\"n\" for the next podcast,\n",
               "\"q\" to quit application.")
         selection = input("Enter your selection here: ")
-    if selection.lower() == 'q':
-        print("Thanks for using my app!")
-        return "end"
-    elif selection.lower == 'n':
-        print("Next Podcast coming right up!")
-        return "next"
-    elif selection in options:
+    if selection in options:
         return selection    # returns option to be used as an int
     else:                   # to select episode from entries
         print("You have selected an option outside of the available range.",
               "Try again.")
-        return "next"
+        second_try = input("[Q]uit or [n]ext podcast: ")
+        return second_try
 
 def getSelectionURL_Title(selection,rss):
     selection = int(selection) - 1
@@ -184,40 +181,43 @@ for item in config_Sections:
     rss,parsedRSSFeed = get_parsed_rss(rss_url)
     selection_list = selection_options(parsedRSSFeed)
     selection = enterSelection(selection_list,rss)
-    if selection == 'next':
+    if selection == 'n':
+        print("Next Podcast Coming Right Up!")
         continue
-    elif selection = 'end':
+    elif selection == 'q':
+        print("Thanks for using my app!")
         break
-    episodeDownloadInfo = getSelectionURL_Title(selection,rss)
-    title = episodeDownloadInfo[1]
-    url = episodeDownloadInfo[0]
-    if config[item]['podpath'] != "":       # get path for saving .mp3
-        podPath = config[item]['podpath']   #
     else:
-        podPath = ""
-    episodeDownloadInfo.append(podPath)
-    fileName = download_selection(episodeDownloadInfo, history, item)
-    i = config.get(item,"parameters")
-    if i != "":                     # checking to see if the parameters
-        params = i.split(",")       # option under the selection is populated
-    if config[item]['eploc'] == '': # checks to see where the ep# is located
-        if config[item]['epnum'] == 'no':   # no episode number indicated
-            epNum = ''
+        episodeDownloadInfo = getSelectionURL_Title(selection,rss)
+        title = episodeDownloadInfo[1]
+        url = episodeDownloadInfo[0]
+        if config[item]['podpath'] != "":       # get path for saving .mp3
+            podPath = config[item]['podpath']   #
         else:
-            epNum = rss.entries[0].itunes_episode   # assumes "yes", gets ep#
-    elif config[item]['eploc'] == 'title':  # is item set to "title" for pod ep
-        epNum = get_episode_num(title,params)   # gets ep from title
-    else:
-        epNum = get_episode_num(url,params) # gets ep from url
-    if config[item]['snnum'] == 'yes':  # checks for season number
-        snNum = rss.entries[0].itunes_season # gets from metadata
-    else:
-        snNum = ''
-    artist = config[item]['artist']
-    album = config[item]['album']
-    album_artist = config[item]['album_artist']
-    writeID3(podPath,fileName,title,epNum,snNum,album,album_artist,artist)
-    print("File Saved.\nMetadata written.\n")
+            podPath = ""
+        episodeDownloadInfo.append(podPath)
+        fileName = download_selection(episodeDownloadInfo, history, item)
+        i = config.get(item,"parameters")
+        if i != "":                     # checking to see if the parameters
+            params = i.split(",")       # option under the selection is populated
+        if config[item]['eploc'] == '': # checks to see where the ep# is located
+            if config[item]['epnum'] == 'no':   # no episode number indicated
+                epNum = ''
+            else:
+                epNum = rss.entries[0].itunes_episode   # assumes "yes", gets ep#
+        elif config[item]['eploc'] == 'title':  # is item set to "title" for pod ep
+            epNum = get_episode_num(title,params)   # gets ep from title
+        else:
+            epNum = get_episode_num(url,params) # gets ep from url
+        if config[item]['snnum'] == 'yes':  # checks for season number
+            snNum = rss.entries[0].itunes_season # gets from metadata
+        else:
+            snNum = ''
+        artist = config[item]['artist']
+        album = config[item]['album']
+        album_artist = config[item]['album_artist']
+        writeID3(podPath,fileName,title,epNum,snNum,album,album_artist,artist)
+        print("File Saved.\nMetadata written.\n")
 
 # getPodcasts(config_Sections,history_Sections,rssparams)
 
