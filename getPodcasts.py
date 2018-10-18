@@ -20,6 +20,11 @@ https://github.com/jfayerz/getPodcasts
 #   - Add option at the beginning to just go through all podcasts and download
 #       the most recent episodes only
 #   - Add option to pick podcast from a list and work only with its episodes
+#   - fix logic to display episode list (breaks right now because if there's
+#       only 7 episodes in the list, and you try to display the second 5 it doesn't
+#       know what to do
+#       * a try/except combo won't do it
+#       * need to use algorithm based on len(rss.entries)
 
 import re
 import feedparser as fp
@@ -58,19 +63,43 @@ def selection_options(rss_feed_list):
         a = str(i)
         selection_list.append(a)
         i -= 1
-    return selection_list   # returns list populated with options from 
-                             # 1 thr ough the last option plus 'n'
+    return selection_list   # returns list populated with options from
+                            # 1 through the last option plus 'n'
 
-def enterSelection(rss_feed_list):
-    print("Enter the number of the podcast episode you wish to download.",
-          "\nOr enter \"n\" for the next five episodes.")
-    selection = input("Enter your selection here: ")
-    if selection in rss_feed_list:
+def display_five(i,a):
+    while i < a:
+        print("[" + str(i+1) + "] - " + rss.entries[i].title)
+        i += 1
+    return i
+
+def a_plus_five(i):
+    a = (i+5)
+    return a
+
+def enterSelection(options,rss):
+    i = 0
+    a = (i+5)
+    selection = 'm'
+    while selection.lower() == 'm':
+        i = display_five(i,a)
+        a = a_plus_five(i)
+        print("Enter the number of the podcast episode you wish to download.",
+              "\nOr enter \"m\" for [m]ore episodes,\n",
+              "\"n\" for the next podcast,\n",
+              "\"q\" to quit application.")
+        selection = input("Enter your selection here: ")
+    if selection.lower() == 'q':
+        print("Thanks for using my app!")
+        return "end"
+    elif selection.lower == 'n':
+        print("Next Podcast coming right up!")
+        return "next"
+    elif selection in options:
         return selection    # returns option to be used as an int
     else:                   # to select episode from entries
         print("You have selected an option outside of the available range.",
               "Try again.")
-        return 0
+        return "next"
 
 def getSelectionURL_Title(selection,rss):
     selection = int(selection) - 1
@@ -154,7 +183,11 @@ for item in config_Sections:
     rss_url = config[item]['rss']
     rss,parsedRSSFeed = get_parsed_rss(rss_url)
     selection_list = selection_options(parsedRSSFeed)
-    selection = enterSelection(selection_list)
+    selection = enterSelection(selection_list,rss)
+    if selection == 'next':
+        continue
+    elif selection = 'end':
+        break
     episodeDownloadInfo = getSelectionURL_Title(selection,rss)
     title = episodeDownloadInfo[1]
     url = episodeDownloadInfo[0]
