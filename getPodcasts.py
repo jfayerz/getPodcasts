@@ -27,7 +27,8 @@ https://github.com/jfayerz/getPodcasts
 #       * need to use algorithm based on len(rss.entries)
 #   - option to continue scrolling down list of episodes after downloading
 #       your first selection
-from plexapi.server import PlexServer
+
+# from plexapi.server import PlexServer
 import re
 import feedparser as fp
 import urllib
@@ -40,21 +41,27 @@ from mutagen.id3 import TIT2, TALB, TPE1, TPE2, TRCK, TPOS
 todays_date = str(date.today())
 configFile = 'podConfig'
 histFile = 'podHistory'
-token_file = 'plex_token'
 rssparams = 'rssparams'
-plexServer = 'miskatonic'
+# uncomment this, the "UpdatePodcastPlex" function def and exec if you are
+# using plex for podcasts like this
+# also, add the name of your plex server and the name of your plex token file
+# plexServer = ''
+# token_file = ''
+# token = cp.ConfigParser()
+# token.read(token_file)
+# plex = PlexServer(baseurl,token)
 config = cp.ConfigParser()
 history = cp.ConfigParser()
-token = cp.ConfigParser()
 config.read(configFile)
 history.read(histFile)
-token.read(token_file)
 config_Sections = config.sections()
 history_Sections = history.sections()
-plex = PlexServer(token['miskatonic']['url'],token['miskatonic']['plex_token'])
 
+# uncomment if you're using plex for podcasts in this way
+"""
 def updatePodcastPlex(s):
     s.library.section('Podcasts').update()
+"""
 
 def get_parsed_rss(rss_url):
     rss = fp.parse(rss_url)
@@ -287,7 +294,8 @@ else:
     choice2 = len(config.sections())
     primary_function(choice,choice2,config)
 
-updatePodcastPlex(plex)
+# uncomment if you're using plex for podcasts in this way
+# updatePodcastPlex(plex)
 
 # getPodcasts(config_Sections,history_Sections,rssparams)
 

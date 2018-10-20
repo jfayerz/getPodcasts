@@ -1,0 +1,8 @@
+;This file is for url and token only
+
+;Example Below
+;Your actual settings should not have the ";" before them
+
+;[server_name]
+;plex_token = 
+;url = http://localhost:32400
