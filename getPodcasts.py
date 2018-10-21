@@ -12,14 +12,6 @@ written by Jonathan Ayers
 https://github.com/jfayerz/getPodcasts
 """
 #TODO:
-#   - Not listing out first five most recent episodes
-#   - No entry in the question for selection downloads the oldest ep
-#   - No logic is set up to handle "n" in selection
-#   - Not parsing "/" in the title correctly for file name
-#   - Need to add additional option to skip
-#   - Add option at the beginning to just go through all podcasts and download
-#       the most recent episodes only
-#   - Add option to pick podcast from a list and work only with its episodes
 #   - fix logic to display episode list (breaks right now because if there's
 #       only 7 episodes in the list, and you try to display the second 5 it doesn't
 #       know what to do
@@ -27,8 +19,11 @@ https://github.com/jfayerz/getPodcasts
 #       * need to use algorithm based on len(rss.entries)
 #   - option to continue scrolling down list of episodes after downloading
 #       your first selection
+#   - Breaks right now if you pick an episode number higher than the total
+#       number of rss.entries.  The fix i put in doesn't work.
 
-# from plexapi.server import PlexServer
+import sys
+from plexapi.server import PlexServer
 import re
 import feedparser as fp
 import urllib
@@ -38,30 +33,107 @@ from mutagen.id3 import ID3NoHeaderError
 from mutagen.id3 import ID3
 from mutagen.id3 import TIT2, TALB, TPE1, TPE2, TRCK, TPOS
 
+arg1 = len(sys.argv)
 todays_date = str(date.today())
+configPath = ''
 configFile = 'podConfig'
 histFile = 'podHistory'
+#token_file = 'plex_token'
 rssparams = 'rssparams'
-# uncomment this, the "UpdatePodcastPlex" function def and exec if you are
-# using plex for podcasts like this
-# also, add the name of your plex server and the name of your plex token file
-# plexServer = ''
-# token_file = ''
-# token = cp.ConfigParser()
-# token.read(token_file)
-# plex = PlexServer(baseurl,token)
+#plexServer = ''
 config = cp.ConfigParser()
 history = cp.ConfigParser()
+token = cp.ConfigParser()
 config.read(configFile)
 history.read(histFile)
+token.read(token_file)
 config_Sections = config.sections()
 history_Sections = history.sections()
+#plex = PlexServer(baseurl,token)
 
-# uncomment if you're using plex for podcasts in this way
-"""
 def updatePodcastPlex(s):
     s.library.section('Podcasts').update()
-"""
+
+def getPodcasts(config_Sections,history_Sections,rssparams):
+    for item in config_Sections:
+        if todays_date != history[item]['last_downloaded_date']:
+            # rss_param_left = int(config[item][rssparams].split(",")[0])
+            # rss_param_right = int(config[item][rssparams].split(",")[1])
+            print("Getting rss info for " + item + ".")
+            rss = fp.parse(config[item]['rss'])
+            if config[item]['podpath'] != "":
+                podPath = config[item]['podpath']
+            else:
+                podPath = ""
+            i = config.get(item,"parameters")
+            if i != "":
+                params = i.split(",")
+            title = []
+            c = rss.entries[0].title.strip()
+            title.append(c)
+            fileName = []
+            b = re.sub('/',' ', title[0]) + ".mp3"
+            fileName.append(b)
+            artist = config[item]['artist']
+            album = config[item]['album']
+            album_artist = config[item]['album_artist']
+            last_url = history[item]['last_url']
+            position = rss.entries[0].links[0].href.find(".mp3")
+            url = []
+            if position != -1:
+                if rss.entries[0].links[0].href.find(".mp3",(position + 4)) != -1:
+                    position2 = rss.entries[0].links[0].href.find(".mp3",(position + 4))
+                    url.append(rss.entries[0].links[0].href[0:(position2 + 4)])
+                else:
+                    url.append(rss.entries[0].links[0].href[0:(position + 4)])
+            else:
+                position = rss.entries[0].links[1].href.find(".mp3")
+                if rss.entries[0].links[1].href.find(".mp3",(position + 4)) != -1:
+                    position2 = rss.entries[0].links[1].href.find(".mp3",(position + 4))
+                    url.append(rss.entries[0].links[1].href[0:(position2 + 4)])
+                else:
+                    url.append(rss.entries[0].links[1].href[0:(position + 4)])
+            if config[item]['eploc'] == '':
+                if config[item]['epnum'] == 'no':
+                    epNum = ''
+                else:
+                    epNum = rss.entries[0].itunes_episode
+            elif config[item]['eploc'] == 'title':
+                epNum = get_episode_num(title,params)
+            else:
+                epNum = get_episode_num(url,params)
+            if config[item]['snnum'] == 'yes':
+                snNum = rss.entries[0].itunes_season
+            else:
+                snNum = ''
+            if item in history_Sections:
+                if url[0] != last_url:
+                    history[item]['last_url'] = url[0]
+                    history[item]['last_downloaded_date'] = todays_date
+                    with open(configPath + histFile,'w') as pH:
+                        history.write(pH)
+                    print("Downloading " + title[0] + " from the " + item + " podcast.")
+                    if podPath != "":
+                        try:
+                            urllib.request.urlretrieve(url[0],podPath +
+                                                       fileName[0])
+                        except urllib.error.HTTPError:
+                            print("Download error with " + title[0] + " episode.")
+                            continue
+                    else:
+                        try:
+                            urllib.request.urlretrieve(url[0],podPath +
+                                                       fileName[0])
+                        except urllib.HTTPError:
+                            print("Download error with " + title[0] + " episode.")
+                            continue
+                    writeID3(podPath,fileName,title,epNum,snNum,album,album_artist,artist)
+                else:
+                    print("Already Downloaded " + item + " episode.")
+            else:
+                print("Error")
+        else:
+            print("Already checked " + config[item]['album'] + " podcast today.")
 
 def get_parsed_rss(rss_url):
     rss = fp.parse(rss_url)
@@ -96,6 +168,7 @@ def enterSelection(options,rss):
     i = 0
     a = (i+5)
     selection = 'm'
+    entries_total = len(rss.entries)-1
     while selection.lower() == 'm':
         i = display_five(i,a,rss)
         a = a_plus_five(i)
@@ -115,8 +188,15 @@ def enterSelection(options,rss):
             else:
                 r.add(int(t[0]))
     options = list(r)
-    print(options) #testing
-    return options
+    for z in options:       # This doesn't work for some reason
+        if int(z) == False: # Still returns options and then fails on next op
+            return options  # If z > len(rss.entries)
+        elif z > entries_total:
+            print("You have selected an option outsite of the",
+                  " available options.\nPlease try again.")
+            break
+        else:
+            return options
     """
     if item in options:
         return selection    # returns option to be used as an int
@@ -279,23 +359,34 @@ def primary_function(delim1,delim2,config):
             album_artist = config[item]['album_artist']
             writeID3(podPath,fileName_list,title,epNum_list,snNum_list,album,album_artist,artist)
             print("File Saved.\nMetadata written.\n")
-
-all_or_one = input("[A]ll podcasts or [C]hoose from list? ")
-if isinstance(all_or_one,str) and all_or_one.lower() == 'c':
-    sections = 0
-    while sections < len(config.sections()):
-        print("[" + str(sections+1) + "] - " + config.sections()[sections])
-        sections += 1
-    choice = int(input("Choose One: "))-1
-    choice2 = choice + 1
-    primary_function(choice,choice2,config)
+if arg1 != 1:
+    if sys.argv[1].lower() == '-h' or sys.argv[1].lower() == '--help':
+        print("getPodcasts - https://github.com/jfayers/getPodcasts/",
+              "\n\n\tOptions\t\tDescription",
+              "\n\n\t-h, --help\t\tThis help screen",
+              "\n\t-a, --all\t\tDownloads newest episode for each",
+              "\n\t\t\t\tPodcast in the Config file.",
+              "\n\n\tDefault: No Arguments\n\tProceed with Menu options.")
+    elif sys.argv[1].lower() == '-a' or sys.argv[1].lower() == '--all':
+        getPodcasts(config_Sections,history_Sections,rssparams)
+    else:
+        print("Invalid Option\nuse \"-h\" for help")
 else:
-    choice = 0
-    choice2 = len(config.sections())
-    primary_function(choice,choice2,config)
+    all_or_one = input("[A]ll podcasts or [C]hoose from list? ")
+    if isinstance(all_or_one,str) and all_or_one.lower() == 'c':
+        sections = 0
+        while sections < len(config.sections()):
+            print("[" + str(sections+1) + "] - " + config.sections()[sections])
+            sections += 1
+        choice = int(input("Choose One: "))-1
+        choice2 = choice + 1
+        primary_function(choice,choice2,config)
+    else:
+        choice = 0
+        choice2 = len(config.sections())
+        primary_function(choice,choice2,config)
 
-# uncomment if you're using plex for podcasts in this way
-# updatePodcastPlex(plex)
+updatePodcastPlex(plex)
 
 # getPodcasts(config_Sections,history_Sections,rssparams)
 
