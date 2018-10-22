@@ -1,13 +1,13 @@
-[dollop]
+[The Dollop]
 name = dollop
 rss = http://thedollop.libsyn.com/rss
 artist = Dave Anthony and Gareth Reynolds
 album = The Dollop
 album_artist = The Dollop
-urlFormat = questionmark
+urlFormat =
 parameters = -,0, ,0
 eploc = title
 epnum = no
 snnum = no
 rssparams = 0,1
-podpath = path
+podpath =

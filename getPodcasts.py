@@ -21,6 +21,8 @@ https://github.com/jfayerz/getPodcasts
 #       your first selection
 #   - Breaks right now if you pick an episode number higher than the total
 #       number of rss.entries.  The fix i put in doesn't work.
+#   - fails if you choose A or C from the menu and then hit a non-numeric
+#       option after the menu appears.
 
 import sys
 from plexapi.server import PlexServer
@@ -38,9 +40,9 @@ todays_date = str(date.today())
 configPath = ''
 configFile = 'podConfig'
 histFile = 'podHistory'
-#token_file = 'plex_token'
+token_file = ''
 rssparams = 'rssparams'
-#plexServer = ''
+plexServer = ''
 config = cp.ConfigParser()
 history = cp.ConfigParser()
 token = cp.ConfigParser()
@@ -49,7 +51,7 @@ history.read(histFile)
 token.read(token_file)
 config_Sections = config.sections()
 history_Sections = history.sections()
-#plex = PlexServer(baseurl,token)
+plex = PlexServer(token[plexServer]['url'],token[plexServer]['plex_token'])
 
 def updatePodcastPlex(s):
     s.library.section('Podcasts').update()
@@ -154,7 +156,8 @@ def selection_options(rss_feed_list):
     return selection_list   # returns list populated with options from
                             # 1 through the last option plus 'n'
 
-def display_five(i,a,rss):
+def display_five(i,a,rss,podcast_name):
+    print("Episodes from " + podcast_name + " Podcast")
     while i < a:
         print("[" + str(i+1) + "] - " + rss.entries[i].title)
         i += 1
@@ -164,13 +167,13 @@ def a_plus_five(i):
     a = (i+5)
     return a
 
-def enterSelection(options,rss):
+def enterSelection(options,rss,podcast_name):
     i = 0
     a = (i+5)
     selection = 'm'
     entries_total = len(rss.entries)-1
     while selection.lower() == 'm':
-        i = display_five(i,a,rss)
+        i = display_five(i,a,rss,podcast_name)
         a = a_plus_five(i)
         print("Enter the number of the podcast episode you wish to download.",
               "\nOr enter \"m\" for [m]ore episodes,\n",
@@ -313,7 +316,7 @@ def primary_function(delim1,delim2,config):
         rss_url = config[item]['rss']
         rss,parsedRSSFeed = get_parsed_rss(rss_url)
         selection_list = selection_options(parsedRSSFeed)
-        options = enterSelection(selection_list,rss)
+        options = enterSelection(selection_list,rss,item)
         if isinstance(options[0],str) and options[0].lower() == 'n':
             print("Next Podcast Coming Right Up!")
             continue
@@ -362,7 +365,7 @@ def primary_function(delim1,delim2,config):
 if arg1 != 1:
     if sys.argv[1].lower() == '-h' or sys.argv[1].lower() == '--help':
         print("getPodcasts - https://github.com/jfayers/getPodcasts/",
-              "\n\n\tOptions\t\tDescription",
+              "\n\n\tOptions\t\t\tDescription",
               "\n\n\t-h, --help\t\tThis help screen",
               "\n\t-a, --all\t\tDownloads newest episode for each",
               "\n\t\t\t\tPodcast in the Config file.",
@@ -386,7 +389,4 @@ else:
         choice2 = len(config.sections())
         primary_function(choice,choice2,config)
 
-updatePodcastPlex(plex)
-
-# getPodcasts(config_Sections,history_Sections,rssparams)
-
+# updatePodcastPlex(plex)
