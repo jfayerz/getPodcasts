@@ -21,11 +21,8 @@ https://github.com/jfayerz/getPodcasts
 #       your first selection
 #   - Breaks right now if you pick an episode number higher than the total
 #       number of rss.entries.  The fix i put in doesn't work.
-#   - fails if you choose A or C from the menu and then hit a non-numeric
-#       option after the menu appears.
 
 import sys
-from plexapi.server import PlexServer
 import re
 import feedparser as fp
 import urllib
@@ -40,21 +37,13 @@ todays_date = str(date.today())
 configPath = ''
 configFile = 'podConfig'
 histFile = 'podHistory'
-token_file = ''
 rssparams = 'rssparams'
-plexServer = ''
 config = cp.ConfigParser()
 history = cp.ConfigParser()
-token = cp.ConfigParser()
 config.read(configFile)
 history.read(histFile)
-token.read(token_file)
 config_Sections = config.sections()
 history_Sections = history.sections()
-plex = PlexServer(token[plexServer]['url'],token[plexServer]['plex_token'])
-
-def updatePodcastPlex(s):
-    s.library.section('Podcasts').update()
 
 def getPodcasts(config_Sections,history_Sections,rssparams):
     for item in config_Sections:
@@ -157,7 +146,10 @@ def selection_options(rss_feed_list):
                             # 1 through the last option plus 'n'
 
 def display_five(i,a,rss,podcast_name):
-    print("Episodes from " + podcast_name + " Podcast")
+    number_of_eps = len(rss.entries)
+    print("Episodes from " + podcast_name + " Podcast",
+          "\nThere are currently " + str(number_of_eps) + " Episodes",
+          " for this Podcast rss.")
     while i < a:
         print("[" + str(i+1) + "] - " + rss.entries[i].title)
         i += 1
@@ -362,10 +354,11 @@ def primary_function(delim1,delim2,config):
             album_artist = config[item]['album_artist']
             writeID3(podPath,fileName_list,title,epNum_list,snNum_list,album,album_artist,artist)
             print("File Saved.\nMetadata written.\n")
+
 if arg1 != 1:
     if sys.argv[1].lower() == '-h' or sys.argv[1].lower() == '--help':
         print("getPodcasts - https://github.com/jfayers/getPodcasts/",
-              "\n\n\tOptions\t\t\tDescription",
+              "\n\n\tOptions\t\tDescription",
               "\n\n\t-h, --help\t\tThis help screen",
               "\n\t-a, --all\t\tDownloads newest episode for each",
               "\n\t\t\t\tPodcast in the Config file.",
@@ -388,5 +381,3 @@ else:
         choice = 0
         choice2 = len(config.sections())
         primary_function(choice,choice2,config)
-
-# updatePodcastPlex(plex)
