@@ -31,7 +31,7 @@ This is a script that will check a dictionary file, get and parse an rss feed, a
 * **urlFormat** - not used currently but i haven't removed it yet
 * **parameters** - this is for situations where the podcast episode is not listed via an itunes\_episode tag in the xml, but rather the episode number is in the title or the filename
 	- this is tricky
-	- example: Let's say that the title from the rss feed for this episode is "Ep372 - The Dollop - Episode Title"
+	- **_example_**: Let's say that the title from the rss feed for this episode is "Ep372 - The Dollop - Episode Title"
 	- in the script there is a function for getting the episode number
 	- if eploc = title and epnum = no then:
 		- the get episode number function will partition off the parts of the title that are not the episode number, but it needs some info from you
