@@ -19,8 +19,9 @@ This is a script that will check a dictionary file, get and parse an rss feed, a
 - If you hit Choose it will then present you with a list of podcasts gleaned from the config file
 	- you choose a podcast and then it gives you the first five episodes etc.
 	- yes, n and q are still broken on this option as well
-- If you run it with the "-a" option it will simply go through the list from config and get the newest episode that it has no already downloaded from each podcast.
+- If you run it with the "-a" option it will simply go through the list from config and get the newest episode that it has not already downloaded from each podcast.
 	- it uses the podHistory config file in order to determine if it's already downloaded that episode (keeps the most recently downloaded url)
+	- this is what you want to use if you want to automate it since it doesn't require any further input from you
 
 ## Setup
 - edit the podConfig file and add your podcast info following the model
