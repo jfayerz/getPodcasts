@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#! /usr/bin/env python3
 
 """
 Notes:
@@ -23,6 +23,7 @@ https://github.com/jfayerz/getPodcasts
 #       number of rss.entries.  The fix i put in doesn't work.
 
 import sys
+
 import re
 import feedparser as fp
 import urllib
@@ -37,13 +38,20 @@ todays_date = str(date.today())
 configPath = ''
 configFile = 'podConfig'
 histFile = 'podHistory'
+
 rssparams = 'rssparams'
 config = cp.ConfigParser()
 history = cp.ConfigParser()
-config.read(configFile)
-history.read(histFile)
+
+config.read(configPath + configFile)
+history.read(configPath + histFile)
+
 config_Sections = config.sections()
 history_Sections = history.sections()
+
+
+def updatePodcastPlex(s):
+    s.library.section('Podcasts').update()
 
 def getPodcasts(config_Sections,history_Sections,rssparams):
     for item in config_Sections:
@@ -78,7 +86,10 @@ def getPodcasts(config_Sections,history_Sections,rssparams):
                 else:
                     url.append(rss.entries[0].links[0].href[0:(position + 4)])
             else:
-                position = rss.entries[0].links[1].href.find(".mp3")
+                try:
+                    position = rss.entries[0].links[1].href.find(".mp3")
+                except:
+                    continue
                 if rss.entries[0].links[1].href.find(".mp3",(position + 4)) != -1:
                     position2 = rss.entries[0].links[1].href.find(".mp3",(position + 4))
                     url.append(rss.entries[0].links[1].href[0:(position2 + 4)])
@@ -88,7 +99,10 @@ def getPodcasts(config_Sections,history_Sections,rssparams):
                 if config[item]['epnum'] == 'no':
                     epNum = ''
                 else:
-                    epNum = rss.entries[0].itunes_episode
+                    try:
+                        epNum = rss.entries[0].itunes_episode
+                    except:
+                        epNum = ""
             elif config[item]['eploc'] == 'title':
                 epNum = get_episode_num(title,params)
             else:
@@ -354,30 +368,30 @@ def primary_function(delim1,delim2,config):
             album_artist = config[item]['album_artist']
             writeID3(podPath,fileName_list,title,epNum_list,snNum_list,album,album_artist,artist)
             print("File Saved.\nMetadata written.\n")
-
 if arg1 != 1:
     if sys.argv[1].lower() == '-h' or sys.argv[1].lower() == '--help':
         print("getPodcasts - https://github.com/jfayers/getPodcasts/",
               "\n\n\tOptions\t\tDescription",
               "\n\n\t-h, --help\t\tThis help screen",
-              "\n\t-a, --all\t\tDownloads newest episode for each",
-              "\n\t\t\t\tPodcast in the Config file.",
-              "\n\n\tDefault: No Arguments\n\tProceed with Menu options.")
-    elif sys.argv[1].lower() == '-a' or sys.argv[1].lower() == '--all':
-        getPodcasts(config_Sections,history_Sections,rssparams)
+              "\n\t-m, --menu\t\tGives menu options",
+              "\n\n\tDefault: No Arguments",
+              "\n\t\tProceed with auto download",
+              "\n\t\tof newest episodes.")
+    elif sys.argv[1].lower() == '-m' or sys.argv[1].lower() == '--menu':
+        all_or_one = input("[A]ll podcasts or [C]hoose from list? ")
+        if isinstance(all_or_one,str) and all_or_one.lower() == 'c':
+            sections = 0
+            while sections < len(config.sections()):
+                print("[" + str(sections+1) + "] - " + config.sections()[sections])
+                sections += 1
+            choice = int(input("Choose One: "))-1
+            choice2 = choice + 1
+            primary_function(choice,choice2,config)
+        else:
+            choice = 0
+            choice2 = len(config.sections())
+            primary_function(choice,choice2,config)
     else:
         print("Invalid Option\nuse \"-h\" for help")
 else:
-    all_or_one = input("[A]ll podcasts or [C]hoose from list? ")
-    if isinstance(all_or_one,str) and all_or_one.lower() == 'c':
-        sections = 0
-        while sections < len(config.sections()):
-            print("[" + str(sections+1) + "] - " + config.sections()[sections])
-            sections += 1
-        choice = int(input("Choose One: "))-1
-        choice2 = choice + 1
-        primary_function(choice,choice2,config)
-    else:
-        choice = 0
-        choice2 = len(config.sections())
-        primary_function(choice,choice2,config)
+       getPodcasts(config_Sections,history_Sections,rssparams)
