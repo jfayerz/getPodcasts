@@ -309,17 +309,17 @@ def download_selection(pod_path, url_list, title_list, history_info, item):
 
     file_names = []
     if len(url_list) > 1:
-        i = 0
-        while i < len(url_list):
-            print("Downloading episode: ", title_list[i])
-            title_formatted = re.sub("/", "", title_list[i])
+        count_goes_up = 0
+        while count_goes_up < len(url_list):
+            print("Downloading episode: ", title_list[count_goes_up])
+            title_formatted = re.sub("/", "", title_list[count_goes_up])
             file_names.append(title_formatted + ".mp3")
             urllib.request.urlretrieve(
-                url_list[i],
+                url_list[count_goes_up],
                 pod_path +
-                file_names[i])
+                file_names[count_goes_up])
             print("Downloaded ", title_formatted)
-            i += 1
+            count_goes_up += 1
     else:
         if history_info[item]['last_downloaded_date'] == todays_date:
             print("Already checked " + item + " podcast today.")
