@@ -6,3 +6,6 @@ test*
 
 # ignore plex things
 *[pP]lex*
+
+# ignore vim .swp files
+*.swp
