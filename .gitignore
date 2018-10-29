@@ -9,3 +9,7 @@ test*
 
 # ignore vim .swp files
 *.swp
+
+# ignore media files
+*.mp3
+*.m4a
