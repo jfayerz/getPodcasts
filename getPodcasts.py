@@ -23,7 +23,6 @@ https://github.com/jfayerz/getPodcasts
 #       number of rss.entries.  The fix i put in doesn't work.
 
 import sys
-
 import re
 import feedparser as fp
 import urllib
@@ -38,20 +37,13 @@ todays_date = str(date.today())
 configPath = ''
 configFile = 'podConfig'
 histFile = 'podHistory'
-
 rssparams = 'rssparams'
 config = cp.ConfigParser()
 history = cp.ConfigParser()
-
 config.read(configPath + configFile)
 history.read(configPath + histFile)
-
 config_Sections = config.sections()
 history_Sections = history.sections()
-
-
-def updatePodcastPlex(s):
-    s.library.section('Podcasts').update()
 
 def getPodcasts(config_Sections,history_Sections,rssparams):
     for item in config_Sections:
@@ -159,28 +151,44 @@ def selection_options(rss_feed_list):
     return selection_list   # returns list populated with options from
                             # 1 through the last option plus 'n'
 
-def display_five(i,a,rss,podcast_name):
-    number_of_eps = len(rss.entries)
-    print("Episodes from " + podcast_name + " Podcast",
-          "\nThere are currently " + str(number_of_eps) + " Episodes",
-          " for this Podcast rss.")
-    while i < a:
-        print("[" + str(i+1) + "] - " + rss.entries[i].title)
-        i += 1
-    return i
+def display_five(i,a,rss,podcast_name,multiples,remainder):
+    if a > len(rss.entries):
+        print("You've Reached the Maximum",
+              "\nStarting from the beginning of the list.")
+        multiples = int((len(rss.entries) / 5))
+        i = 0
+        return i,multiples
+    else:
+        number_of_eps = len(rss.entries)
+        print("Episodes from " + podcast_name + " Podcast",
+              "\nThere are currently " + str(number_of_eps) + " Episodes",
+              " for this Podcast rss.")
+        while i < a:
+            print("[" + str(i+1) + "] - " + rss.entries[i].title)
+            i += 1
+        multiples-=1
+        return i,multiples
 
-def a_plus_five(i):
-    a = (i+5)
+def a_plus_five(i,multiples,remainder):
+    if multiples == 0:
+        a = (i+remainder)
+    else:
+        a = (i+5)
     return a
 
 def enterSelection(options,rss,podcast_name):
+    remainder = int(len(rss.entries) % 5)
+    multiples = int((len(rss.entries) / 5))
     i = 0
-    a = (i+5)
+    if multiples < 5:
+        a = remainder
+    else:
+        a = 5
     selection = 'm'
     entries_total = len(rss.entries)-1
     while selection.lower() == 'm':
-        i = display_five(i,a,rss,podcast_name)
-        a = a_plus_five(i)
+        i,multiples = display_five(i,a,rss,podcast_name,multiples,remainder)
+        a = a_plus_five(i,multiples,remainder)
         print("Enter the number of the podcast episode you wish to download.",
               "\nOr enter \"m\" for [m]ore episodes,\n",
               "\"n\" for the next podcast,\n",
@@ -197,15 +205,16 @@ def enterSelection(options,rss,podcast_name):
             else:
                 r.add(int(t[0]))
     options = list(r)
-    for z in options:       # This doesn't work for some reason
-        if int(z) == False: # Still returns options and then fails on next op
-            return options  # If z > len(rss.entries)
-        elif z > entries_total:
-            print("You have selected an option outsite of the",
-                  " available options.\nPlease try again.")
-            break
-        else:
-            return options
+    if options[0] == 'n':
+        return options
+    elif options[0] == 'q':
+        return options
+    else:
+        for z in options:
+            if z > len(rss.entries):
+                print("Your selection is out of range")
+                break
+        return options
     """
     if item in options:
         return selection    # returns option to be used as an int
@@ -324,8 +333,15 @@ def primary_function(delim1,delim2,config):
         selection_list = selection_options(parsedRSSFeed)
         options = enterSelection(selection_list,rss,item)
         if isinstance(options[0],str) and options[0].lower() == 'n':
-            print("Next Podcast Coming Right Up!")
-            continue
+            delim1+=1
+            delim2 = (delim1 + 1)
+            if delim1 >= len(config.sections()):
+                print("The End!")
+                break
+            else:
+                print("Next Podcast Coming Right Up!")
+                primary_function(delim1,delim2,config)
+                #continue
         elif isinstance(options[0],str) and options[0].lower() == 'q':
             print("Thanks for using my app!")
             break
@@ -340,7 +356,7 @@ def primary_function(delim1,delim2,config):
             number_options = len(options)
             i = config.get(item,"parameters")
             epNum_list = []
-            if i != "":                     # checking to see if the parameters
+            if i != "":                    # checking to see if the parameters
                 params = i.split(",")       # option under the selection is populated
             if config[item]['eploc'] == '': # checks to see where the ep# is located
                 if config[item]['epnum'] == 'no':   # no episode number indicated
@@ -368,6 +384,7 @@ def primary_function(delim1,delim2,config):
             album_artist = config[item]['album_artist']
             writeID3(podPath,fileName_list,title,epNum_list,snNum_list,album,album_artist,artist)
             print("File Saved.\nMetadata written.\n")
+
 if arg1 != 1:
     if sys.argv[1].lower() == '-h' or sys.argv[1].lower() == '--help':
         print("getPodcasts - https://github.com/jfayers/getPodcasts/",
