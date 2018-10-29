@@ -74,7 +74,7 @@ def getPodcasts(config_Sections, history_Sections, rssparams):
             else:
                 try:
                     position = rss.entries[0].links[1].href.find(".mp3")
-                except:
+                except IndexError:
                     continue
                 if rss.entries[0].links[1].href.find(".mp3", (position + 4)) != -1:
                     position2 = rss.entries[0].links[1].href.find(".mp3", (position + 4))
@@ -87,7 +87,7 @@ def getPodcasts(config_Sections, history_Sections, rssparams):
                 else:
                     try:
                         epNum = rss.entries[0].itunes_episode
-                    except:
+                    except KeyError:
                         epNum = ""
             elif config[item]['eploc'] == 'title':
                 epNum = get_episode_num(title, params)
@@ -106,18 +106,17 @@ def getPodcasts(config_Sections, history_Sections, rssparams):
                     print("Downloading " + title[0] + " from the " + item + " podcast.")
                     if podPath != "":
                         try:
-                            urllib.request.urlretrieve(url[0],podPath +
-                                                       fileName[0])
+                            urllib.request.urlretrieve(url[0], podPath + fileName[0])
                         except urllib.error.HTTPError:
                             print("Download error with " + title[0] + " episode.")
                             continue
                     else:
                         try:
-                            urllib.request.urlretrieve(url[0],podPath + fileName[0])
+                            urllib.request.urlretrieve(url[0], podPath + fileName[0])
                         except urllib.HTTPError:
                             print("Download error with " + title[0] + " episode.")
                             continue
-                    writeID3(podPath,fileName,title,epNum,snNum,album,album_artist,artist)
+                    writeID3(podPath, fileName, title, epNum, snNum, album, album_artist, artist)
                 else:
                     print("Already Downloaded " + item + " episode.")
             else:
@@ -125,7 +124,9 @@ def getPodcasts(config_Sections, history_Sections, rssparams):
         else:
             print("Already checked " + config[item]['album'] + " podcast today.")
 
+
 def get_parsed_rss(rss_url):
+
     rss = fp.parse(rss_url)
     parsedRSSFeed = []
     i = 0
@@ -134,17 +135,20 @@ def get_parsed_rss(rss_url):
         i += 1
     return rss, parsedRSSFeed
 
+
 def selection_options(rss_feed_list):
+
     i = len(rss_feed_list)
     selection_list = ["n"]
     while i > 0:
         a = str(i)
         selection_list.append(a)
         i -= 1
-    return selection_list   # returns list populated with options from
-                            # 1 through the last option plus 'n'
+    return selection_list   # returns list populated with options from 1 through the last option plus 'n'
+
 
 def display_five(i, a, rss, podcast_name, multiples, remainder):
+
     if a > len(rss.entries):
         print("You've Reached the Maximum",
               "\nStarting from the beginning of the list.")
@@ -159,17 +163,21 @@ def display_five(i, a, rss, podcast_name, multiples, remainder):
         while i < a:
             print("[" + str(i+1) + "] - " + rss.entries[i].title)
             i += 1
-        multiples-=1
+        multiples -= 1
         return i, multiples
 
+
 def a_plus_five(i, multiples, remainder):
+
     if multiples == 0:
-        a = ( i + remainder )
+        a = (i + remainder)
     else:
-        a = ( i + 5 )
+        a = (i + 5)
     return a
 
+
 def enterSelection(options, rss, podcast_name):
+
     remainder = int(len(rss.entries) % 5)
     multiples = int((len(rss.entries) / 5))
     i = 0
@@ -178,10 +186,10 @@ def enterSelection(options, rss, podcast_name):
     else:
         a = 5
     selection = 'm'
-    entries_total = len(rss.entries) - 1
+    # entries_total = len(rss.entries) - 1
     while selection.lower() == 'm':
         i, multiples = display_five(i, a, rss, podcast_name, multiples, remainder)
-        a = a_plus_five(i,multiples,remainder)
+        a = a_plus_five(i, multiples, remainder)
         print("Enter the number of the podcast episode you wish to download.",
               "\nOr enter \"m\" for [m]ore episodes,\n",
               "\"n\" for the next podcast,\n",
@@ -191,7 +199,7 @@ def enterSelection(options, rss, podcast_name):
     for x in selection.split(","):
         t = x.split("-")
         if len(t) == 2:
-            r.update(set(range(int( t[0] ), int(t[1]) + 1 )))
+            r.update(set(range(int(t[0]), int(t[1]) + 1)))
         else:
             if t[0].isalpha():
                 r.add(t[0])
@@ -218,38 +226,47 @@ def enterSelection(options, rss, podcast_name):
         return second_try
     """
 
+
 def getSelectionURL_Title(list_options, rss):
+
     url = []
     title = []
     for item in list_options:
-        title.append(rss.entries[ item - 1 ].title)
-        position = rss.entries[ item - 1 ].links[0].href.find(".mp3")
-        x = rss.entries[ item - 1 ].links[0].href
+        title.append(rss.entries[item - 1].title)
+        position = rss.entries[item - 1].links[0].href.find(".mp3")
+        x = rss.entries[item - 1].links[0].href
         try:
-            y = rss.entries[ item - 1 ].links[1].href
-        except:
+            y = rss.entries[item - 1].links[1].href
+        except IndexError:
             pass
         if position != -1:
-            if x.find(".mp3",(position + 4)) != -1:
-                position2 = x.find(".mp3",(position + 4))
+            if x.find(".mp3", (position + 4)) != -1:
+                position2 = x.find(".mp3", (position + 4))
                 url.append(x[0:(position2 + 4)])
             else:
                 url.append(x[0:(position + 4)])
         else:
             position = y.find(".mp3")
-            if y.find(".mp3",(position + 4)) != -1:
+            if y.find(".mp3", (position + 4)) != -1:
                 position2 = y.find(".mp3", (position + 4))
                 url.append(y[0:(position2 + 4)])
             else:
                 url.append(y[0:(position + 4)])
     # print(url, title) # for testing
-    return url, title    # returns a list with the mp3 download url of
-                            # the selection and the title of the selection
-                        # TODO: eventually add the ability to select more than
-                        # one
+    return url, title
+
+
+"""
+                        returns a list with the mp3 download url of
+                        the selection and the title of the selection
+                        TODO: eventually add the ability to select more than
+                        one
+"""
+
 
 def get_episode_num(urltitle_list, parameters):
-#function to get episode number from non standard location
+
+    # function to get episode number from non standard location
     foo1 = parameters[0]
     bar1 = int(parameters[1])
     foo2 = parameters[2]
@@ -257,12 +274,13 @@ def get_episode_num(urltitle_list, parameters):
     epNum_list = []
     for x in urltitle_list:
         left_part = x.partition(foo1)[bar1]
-        epNum_list.append(re.sub('[A-Za-z]','',
-                                 left_part.partition(foo2)[bar2]).strip())
+        epNum_list.append(re.sub('[A-Za-z]', '', left_part.partition(foo2)[bar2]).strip())
     # print(epNum_list) # for testing
     return epNum_list
 
+
 def writeID3(podPath, file_name, titles, epNum, snNum, alb, albart, art):
+
     for x in file_name:
         n = file_name.index(x)
         try:
@@ -285,7 +303,9 @@ def writeID3(podPath, file_name, titles, epNum, snNum, alb, albart, art):
         audio.add(TALB(encoding=3, text=alb))
         audio.save(podPath + x)
 
+
 def download_selection(podPath, url_list, title_list, history_info, item):
+
     file_names = []
     if len(url_list) > 1:
         i = 0
@@ -318,10 +338,12 @@ def download_selection(podPath, url_list, title_list, history_info, item):
                 history_info.write(hist)
     return file_names
 
+
 def primary_function(delim1, delim2, config):
+
     for item in config.sections()[delim1:delim2]:
         rss_url = config[item]['rss']
-        rss,parsedRSSFeed = get_parsed_rss(rss_url)
+        rss, parsedRSSFeed = get_parsed_rss(rss_url)
         selection_list = selection_options(parsedRSSFeed)
         options = enterSelection(selection_list, rss, item)
         if isinstance(options[0], str) and options[0].lower() == 'n':
@@ -338,7 +360,7 @@ def primary_function(delim1, delim2, config):
             break
         else:
             snNum_list = []
-            url,title = getSelectionURL_Title(options, rss)
+            url, title = getSelectionURL_Title(options, rss)
             if config[item]['podpath'] != "":       # get path for saving .mp3
                 podPath = config[item]['podpath']   #
             else:
@@ -349,7 +371,7 @@ def primary_function(delim1, delim2, config):
             epNum_list = []
             if i != "":                    # checking to see if the parameters
                 params = i.split(",")       # option under the selection is populated
-            if config[item]['eploc'] == '': # checks to see where the ep# is located
+            if config[item]['eploc'] == '':  # checks to see where the ep# is located
                 if config[item]['epnum'] == 'no':   # no episode number indicated
                     epNum_list.append("")
                 else:
@@ -359,9 +381,9 @@ def primary_function(delim1, delim2, config):
                         epNum_list.append(rss.entries[g].itunes_episode)
                         f += 1
             elif config[item]['eploc'] == 'title':  # is item set to "title" for pod ep
-                epNum_list = get_episode_num(title, params)  #TODO update function
-            else:                                           #to handle a list
-                epNum_list = get_episode_num(url, params) # gets ep from url
+                epNum_list = get_episode_num(title, params)  # TODO update function
+            else:                                           # to handle a list
+                epNum_list = get_episode_num(url, params)  # gets ep from url
             if config[item]['snnum'] == 'yes':  # checks for season number
                 f = 0
                 while f < number_options:
@@ -376,6 +398,7 @@ def primary_function(delim1, delim2, config):
             writeID3(podPath, fileName_list, title, epNum_list, snNum_list, album, album_artist, artist)
             print("File Saved.\nMetadata written.\n")
 
+
 if arg1 != 1:
     if sys.argv[1].lower() == '-h' or sys.argv[1].lower() == '--help':
         print("getPodcasts - https://github.com/jfayers/getPodcasts/",
@@ -387,7 +410,7 @@ if arg1 != 1:
               "\n\t\tof newest episodes.")
     elif sys.argv[1].lower() == '-m' or sys.argv[1].lower() == '--menu':
         all_or_one = input("[A]ll podcasts or [C]hoose from list? ")
-        if isinstance(all_or_one,str) and all_or_one.lower() == 'c':
+        if isinstance(all_or_one, str) and all_or_one.lower() == 'c':
             sections = 0
             while sections < len(config.sections()):
                 print("[" + str(sections + 1) + "] - " + config.sections()[sections])
@@ -402,4 +425,4 @@ if arg1 != 1:
     else:
         print("Invalid Option\nuse \"-h\" for help")
 else:
-       getPodcasts(config_Sections, history_Sections, rssparams)
+    getPodcasts(config_Sections, history_Sections, rssparams)
