@@ -1,0 +1,5 @@
+# ignore all .bak files
+*.bak
+
+# ignore all test files
+test*
