@@ -12,15 +12,8 @@ written by Jonathan Ayers
 https://github.com/jfayerz/getPodcasts
 """
 #TODO:
-#   - fix logic to display episode list (breaks right now because if there's
-#       only 7 episodes in the list, and you try to display the second 5 it doesn't
-#       know what to do
-#       * a try/except combo won't do it
-#       * need to use algorithm based on len(rss.entries)
 #   - option to continue scrolling down list of episodes after downloading
 #       your first selection
-#   - Breaks right now if you pick an episode number higher than the total
-#       number of rss.entries.  The fix i put in doesn't work.
 
 import sys
 import re
