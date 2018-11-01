@@ -48,7 +48,7 @@ def get_podcasts(config_sections, history_sections):
                 pod_path = config[podcast_entry]['podpath']
             else:
                 pod_path = ""
-            episode_number_parameters = config.get(podcast_entry, "parameters")
+            episode_number_parameters = config.get(podcast_entry, "episode_parameters")
             if episode_number_parameters != "":
                 params = episode_number_parameters.split(",")
             title = []
@@ -79,7 +79,7 @@ def get_podcasts(config_sections, history_sections):
                     url.append(rss.entries[0].links[1].href[0:(what_about_this_link + 4)])
                 else:
                     url.append(rss.entries[0].links[1].href[0:(does_this_link_contain_mp3 + 4)])
-            if config[podcast_entry]['eploc'] == '':
+            if config[podcast_entry]['episode_location'] == '':
                 if config[podcast_entry]['epnum'] == 'no':
                     episode_num = ''
                 else:
@@ -87,7 +87,7 @@ def get_podcasts(config_sections, history_sections):
                         episode_num = rss.entries[0].itunes_episode
                     except KeyError:
                         episode_num = ""
-            elif config[podcast_entry]['eploc'] == 'title':
+            elif config[podcast_entry]['episode_location'] == 'title':
                 episode_num = get_episode_num(title, params)
             else:
                 episode_num = get_episode_num(url, params)
@@ -372,11 +372,11 @@ def primary_function(delim1, delim2, config):
                 pod_path = ""
             file_name_list = download_selection(pod_path, url, title, history, podcast_entry)
             number_options = len(list_of_selections)
-            episode_number_parameters = config.get(podcast_entry, "parameters")
+            episode_number_parameters = config.get(podcast_entry, "episode_parameters")
             episode_num_list = []
             if episode_number_parameters != "":                    # checking to see if the parameters
                 params = episode_number_parameters.split(",")       # option under the selection is populated
-            if config[podcast_entry]['eploc'] == '':  # checks to see where the ep# is located
+            if config[podcast_entry]['episode_location'] == '':  # checks to see where the ep# is located
                 if config[podcast_entry]['epnum'] == 'no':   # no episode number indicated
                     episode_num_list.append("")
                 else:
@@ -385,7 +385,7 @@ def primary_function(delim1, delim2, config):
                         selection_from_list = list_of_selections[count_goes_up]
                         episode_num_list.append(rss.entries[selection_from_list].itunes_episode)
                         count_goes_up += 1
-            elif config[podcast_entry]['eploc'] == 'title':  # is item set to "title" for pod ep
+            elif config[podcast_entry]['episode_location'] == 'title':  # is item set to "title" for pod ep
                 episode_num_list = get_episode_num(title, params)  # TODO update function
             else:                                           # to handle a list
                 episode_num_list = get_episode_num(url, params)  # gets ep from url
