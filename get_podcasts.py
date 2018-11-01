@@ -285,23 +285,19 @@ def get_episode_or_season_num(urltitle_list, parameters):
 
     # function to get episode number from non standard location
     foo1 = parameters[0]
-    print(foo1 + " - 0")
     bar1 = int(parameters[1])
-    print(str(bar1) + " - 1")
     foo2 = parameters[2]
-    print(foo2 + " - 2")
     bar2 = int(parameters[3])
-    print(str(bar2) + " - 3")
     num_list = []
     for x in urltitle_list:
         left_part = x.partition(foo1)[bar1]
         num_list.append(re.sub('[A-Za-z]', '', left_part.partition(foo2)[bar2]).strip())
-    print(num_list) # for testing
     return num_list
 
 
 def write_id3(pod_path, file_name, titles, episode_num, season_num, alb, albart, art):
 
+    print(season_num)
     for file_name_entry in file_name:
         file_name_index = file_name_entry.index(file_name_entry)
         try:
@@ -430,9 +426,9 @@ def primary_function(delim1, delim2, config):
                         count_goes_up += 1
             elif config[podcast_entry]['season_location'] == 'title':
                 season_num_list = get_episode_or_season_num(title, season_params)
-                print(season_num_list)
             else:
                 season_num_list = get_episode_or_season_num(url, season_params)
+            """
             if config[podcast_entry]['snnum'] == 'yes':
                 count_goes_up = 0
                 while count_goes_up < number_options:
@@ -441,6 +437,7 @@ def primary_function(delim1, delim2, config):
                     count_goes_up += 1
             else:
                 season_num_list = []
+            """
 
             artist = config[podcast_entry]['artist']
             album = config[podcast_entry]['album']
