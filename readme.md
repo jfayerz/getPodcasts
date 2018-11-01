@@ -1,7 +1,7 @@
-# getPodcasts
+# get_podcasts.py
 
 
-This is a script that will check a dictionary file, get and parse an rss feed, and then download/rename podcast files
+This is a script that will check a config file, get and parse an rss feed, and then download/rename podcast files
 
 ## How to use:
 - default running of getPodcasts.py auto download the newest episode of each podcast in the config file if it hasn't already been downloaded (based on the podHistory file)
