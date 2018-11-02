@@ -121,16 +121,19 @@ def get_podcasts(config_sections, history_sections):
                     if pod_path != "":
                         try:
                             urllib.request.urlretrieve(url[0], pod_path + file_name[0])
+                            write_id3_single_file(pod_path, file_name[0], title[0], episode_num, season_num, album, album_artist, artist)
                         except urllib.error.HTTPError:
                             print("Download error with " + title[0] + " episode.")
                             continue
                     else:
                         try:
                             urllib.request.urlretrieve(url[0], pod_path + file_name[0])
+                            write_id3_single_file(pod_path, file_name[0], title[0], episode_num, season_num, album, album_artist, artist)
                         except urllib.HTTPError:
                             print("Download error with " + title[0] + " episode.")
                             continue
-                    write_id3(pod_path, file_name, title, episode_num, season_num, album, album_artist, artist)
+                    # write_id3(pod_path, file_name, title, episode_num, season_num, album, album_artist, artist)
+                    # old "write_id3"
                 else:
                     print("Already Downloaded " + podcast_entry + " episode.")
             else:
@@ -272,14 +275,12 @@ def get_selection_url_title(list_options, rss):
     # print(url, title) # for testing
     return url, title
 
-
 """
                         returns a list with the mp3 download url of
                         the selection and the title of the selection
                         TODO: eventually add the ability to select more than
                         one
 """
-
 
 def get_episode_or_season_num(urltitle_list, parameters):
 
@@ -321,8 +322,42 @@ def write_id3(pod_path, file_name, titles, episode_num, season_num, alb, albart,
         audio.save(pod_path + file_name_entry)
 
 
-def download_selection(pod_path, url_list, title_list, history_info, item):
+def write_id3_single_file(path, filename, title, episode, season, album, album_artist, artist):
+    print(episode)
+    print(season)
+    try:
+        audio = ID3(path + filename)
+        audio.delete()
+        audio = ID3()
+    except ID3NoHeaderError:
+        audio = ID3()
 
+    audio.add(TIT2(encoding=3, text=title))
+    if episode != '':
+        audio.add(TRCK(encoding=3, text=episode))
+    else:
+        print('No Episode Number')
+
+    if season != '':
+        audio.add(TPOS(encoding=3, text=season))
+    else:
+        print('No Season Number')
+
+    audio.add(TPE1(encoding=3, text=artist))
+    audio.add(TPE2(encoding=3, text=album_artist))
+    audio.add(TALB(encoding=3, text=album))
+    audio.save(path + filename)
+
+
+def download_selection(pod_path, url_list, title_list, history_info, item, episode, season, artist, album, album_artist):
+    """
+    print(episode)
+    print(season)
+    episode_numbers_list = list(map(int, episode))
+    season_numbers_list = list(map(int, season))
+    print(episode_numbers_list)
+    print(season_numbers_list)
+    """
     file_names = []
     if len(url_list) > 1:
         count_goes_up = 0
@@ -335,6 +370,8 @@ def download_selection(pod_path, url_list, title_list, history_info, item):
                 pod_path +
                 file_names[count_goes_up])
             print("Downloaded ", title_formatted)
+            write_id3_single_file(pod_path, file_names[count_goes_up], title_formatted,
+                                  episode[count_goes_up], season[count_goes_up], album, album_artist, artist)
             count_goes_up += 1
     else:
         if history_info[item]['last_downloaded_date'] == todays_date:
@@ -349,6 +386,8 @@ def download_selection(pod_path, url_list, title_list, history_info, item):
                 url_list[0],
                 pod_path +
                 file_names[0])
+            write_id3_single_file(pod_path, file_names[count_goes_up], title_formatted,
+                                  episode[count_goes_up], season[count_goes_up], album, album_artist, artist)
             history_info[item]['last_url'] == url_list[0]
             history_info[item]['last_downloaded_date'] == todays_date
             with open(history_file, 'w') as hist:
@@ -382,11 +421,6 @@ def primary_function(delim1, delim2, config):
         else:
             season_num_list = []
             url, title = get_selection_url_title(list_of_selections, rss)
-            if config[podcast_entry]['podpath'] != "":       # get path for saving .mp3
-                pod_path = config[podcast_entry]['podpath']   #
-            else:
-                pod_path = ""
-            file_name_list = download_selection(pod_path, url, title, history, podcast_entry)
             number_options = len(list_of_selections)
 
             episode_number_parameters = config.get(podcast_entry, "episode_parameters")
@@ -442,7 +476,15 @@ def primary_function(delim1, delim2, config):
             artist = config[podcast_entry]['artist']
             album = config[podcast_entry]['album']
             album_artist = config[podcast_entry]['album_artist']
-            write_id3(pod_path, file_name_list, title, episode_num_list, season_num_list, album, album_artist, artist)
+
+            if config[podcast_entry]['podpath'] != "":       # get path for saving .mp3
+                pod_path = config[podcast_entry]['podpath']
+            else:
+                pod_path = ""
+            file_name_list = download_selection(pod_path, url, title, history, podcast_entry, episode_num_list,
+                                                season_num_list, artist, album, album_artist)
+            # write_id3(pod_path, file_name_list, title, episode_num_list, season_num_list, album, album_artist, artist)
+            # Old "write_id3"
             print("File Saved.\nMetadata written.\n")
 
 
