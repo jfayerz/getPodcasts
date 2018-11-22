@@ -91,7 +91,7 @@ def get_podcasts(config_sections, history_sections):
                 else:
                     try:
                         episode_num = rss.entries[0].itunes_episode
-                    except KeyError:
+                    except AttributeError:
                         episode_num = ''
             elif config[podcast_entry]['episode_location'] == 'title':
                 episode_num = get_episode_or_season_num(title, episode_params)
