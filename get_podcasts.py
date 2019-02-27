@@ -14,8 +14,8 @@ https://github.com/jfayerz/get_podcasts
 # TODO:
 #   - option to continue scrolling down list of episodes after downloading
 #       your first selection
-
 import sys
+from plexapi.server import PlexServer
 import re
 import feedparser as fp
 import urllib
@@ -27,16 +27,23 @@ from mutagen.id3 import TIT2, TALB, TPE1, TPE2, TRCK, TPOS
 
 user_options = len(sys.argv)
 todays_date = str(date.today())
-path_to_configuration_file = ''
+path_to_configuration_file = '/scripts/podcast/'
 configuration_settings_file = 'pod_config'
 history_file = 'pod_history'
-# rss_parameters_from_file = 'rssparams'  # this isn't needed any longer
+token_file = 'plex_token'
 config = cp.ConfigParser()
 history = cp.ConfigParser()
+token = cp.ConfigParser()
 config.read(path_to_configuration_file + configuration_settings_file)
 history.read(path_to_configuration_file + history_file)
+token.read(path_to_configuration_file + token_file)
 config_sections = config.sections()
 history_sections = history.sections()
+plex = PlexServer(token['miskatonic']['url'], token['miskatonic']['plex_token'])
+
+
+def update_podcast_plex(s):
+    s.library.section('Podcasts').update()
 
 
 def get_podcasts(config_sections, history_sections):
@@ -91,7 +98,7 @@ def get_podcasts(config_sections, history_sections):
                 else:
                     try:
                         episode_num = rss.entries[0].itunes_episode
-                    except AttributeError:
+                    except (KeyError, AttributeError):
                         episode_num = ''
             elif config[podcast_entry]['episode_location'] == 'title':
                 episode_num = get_episode_or_season_num(title, episode_params)
@@ -104,7 +111,7 @@ def get_podcasts(config_sections, history_sections):
                 else:
                     try:
                         season_num = rss.entries[0].itunes_season
-                    except KeyError:
+                    except (KeyError, AttributeError):
                         season_num = ''
             elif config[podcast_entry]['season_location'] == 'title':
                 season_num = get_episode_or_season_num(title, season_params)
@@ -275,12 +282,14 @@ def get_selection_url_title(list_options, rss):
     # print(url, title) # for testing
     return url, title
 
+
 """
                         returns a list with the mp3 download url of
                         the selection and the title of the selection
                         TODO: eventually add the ability to select more than
                         one
 """
+
 
 def get_episode_or_season_num(urltitle_list, parameters):
 
@@ -370,10 +379,16 @@ def download_selection(pod_path, url_list, title_list, history_info, item, episo
                 pod_path +
                 file_names[count_goes_up])
             print("Downloaded ", title_formatted)
-            write_id3_single_file(pod_path, file_names[count_goes_up], title_formatted,
-                                  episode[count_goes_up], season[count_goes_up], album, album_artist, artist)
-            count_goes_up += 1
+            if len(season) == 1:
+                write_id3_single_file(pod_path, file_names[count_goes_up], title_formatted,
+                                      episode[count_goes_up], season[0], album, album_artist, artist)
+                count_goes_up += 1
+            else:
+                write_id3_single_file(pod_path, file_names[count_goes_up], title_formatted,
+                                      episode[count_goes_up], season[count_goes_up], album, album_artist, artist)
+                count_goes_up += 1
     else:
+        count_goes_up = 0
         if history_info[item]['last_downloaded_date'] == todays_date:
             print("Already checked " + item + " podcast today.")
         elif history_info[item]['last_url'] == url_list[0]:
@@ -436,7 +451,10 @@ def primary_function(delim1, delim2, config):
                     count_goes_up = 0
                     while count_goes_up < number_options:
                         selection_from_list = list_of_selections[count_goes_up]
-                        episode_num_list.append(rss.entries[selection_from_list].itunes_episode)
+                        try:
+                            episode_num_list.append(rss.entries[selection_from_list].itunes_episode)
+                        except (KeyError, AttributeError):
+                            episode_num_list.append('')
                         count_goes_up += 1
             elif config[podcast_entry]['episode_location'] == 'title':  # is item set to "title" for pod ep
                 episode_num_list = get_episode_or_season_num(title, episode_params)  # TODO update function
@@ -456,8 +474,12 @@ def primary_function(delim1, delim2, config):
                     count_goes_up = 0
                     while count_goes_up < number_options:
                         selection_from_list = list_of_selections[count_goes_up]
-                        season_num_list.append(rss.entries[selection_from_list].itunes_season)
+                        try:
+                            season_num_list.append(rss.entries[selection_from_list].itunes_season)
+                        except (KeyError, AttributeError):
+                            season_num_list.append('')
                         count_goes_up += 1
+                    print(season_num_list)
             elif config[podcast_entry]['season_location'] == 'title':
                 season_num_list = get_episode_or_season_num(title, season_params)
             else:
@@ -481,8 +503,9 @@ def primary_function(delim1, delim2, config):
                 pod_path = config[podcast_entry]['podpath']
             else:
                 pod_path = ""
-            file_name_list = download_selection(pod_path, url, title, history, podcast_entry, episode_num_list,
-                                                season_num_list, artist, album, album_artist)
+            # file_name_list =
+            download_selection(pod_path, url, title, history, podcast_entry, episode_num_list,
+                               season_num_list, artist, album, album_artist)
             # write_id3(pod_path, file_name_list, title, episode_num_list, season_num_list, album, album_artist, artist)
             # Old "write_id3"
             print("File Saved.\nMetadata written.\n")
@@ -515,3 +538,5 @@ if user_options != 1:
         print("Invalid Option\nuse \"-h\" for help")
 else:
     get_podcasts(config_sections, history_sections)
+
+update_podcast_plex(plex)
