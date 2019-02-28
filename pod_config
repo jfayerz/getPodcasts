@@ -1,5 +1,5 @@
 [The Dollop]
-rss = http://thedollop.libsyn.com/rss
+rss = ./dummy_rss/dollop.rss
 artist = Dave Anthony and Gareth Reynolds
 album = The Dollop
 album_artist = The Dollop
@@ -9,10 +9,10 @@ season_location =
 season_parameters =
 epnum = no
 snnum = no
-podpath =
+podpath = ./dummy_mp3/
 
 [The NoSleep Podcast]
-rss = http://rss.art19.com/nosleep
+rss = ./dummy_rss/nosleep.rss
 artist = The NoSleep Podcast
 album = The NoSleep Podcast
 album_artist = The NoSleep Podcast
@@ -22,4 +22,4 @@ season_location = title
 season_parameters = t S,2,E,0
 epnum = no
 snnum = no
-podpath =
+podpath = ./dummy_mp3/

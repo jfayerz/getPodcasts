@@ -13,3 +13,6 @@ test*
 # ignore media files
 *.mp3
 *.m4a
+
+# ignore dummy
+dummy_*
