@@ -21,13 +21,15 @@ import feedparser as fp
 import urllib
 import configparser as cp
 from datetime import date
-from mutagen.id3 import ID3NoHeaderError
-from mutagen.id3 import ID3
-from mutagen.id3 import TIT2, TALB, TPE1, TPE2, TRCK, TPOS
+from write_id3_single_file import write_id3_single_file
+# from mutagen.id3 import ID3NoHeaderError
+# from mutagen.id3 import ID3
+# from mutagen.id3 import TIT2, TALB, TPE1, TPE2, TRCK, TPOS
+# from write_id3 import write_id3
 
 user_options = len(sys.argv)
 todays_date = str(date.today())
-path_to_configuration_file = '/scripts/podcast/'
+path_to_configuration_file = './'
 configuration_settings_file = 'pod_config'
 history_file = 'pod_history'
 token_file = 'plex_token'
@@ -304,7 +306,10 @@ def get_episode_or_season_num(urltitle_list, parameters):
         num_list.append(re.sub('[A-Za-z]', '', left_part.partition(foo2)[bar2]).strip())
     return num_list
 
-
+# commenting out write_id3 function
+# function is now in a separate file
+# also, this function is unused
+"""
 def write_id3(pod_path, file_name, titles, episode_num, season_num, alb, albart, art):
 
     print(season_num)
@@ -329,8 +334,11 @@ def write_id3(pod_path, file_name, titles, episode_num, season_num, alb, albart,
         audio.add(TPE2(encoding=3, text=albart))
         audio.add(TALB(encoding=3, text=alb))
         audio.save(pod_path + file_name_entry)
+"""
 
-
+# commenting out
+# function is now imported from a separate file
+"""
 def write_id3_single_file(path, filename, title, episode, season, album, album_artist, artist):
     print(episode)
     print(season)
@@ -356,6 +364,7 @@ def write_id3_single_file(path, filename, title, episode, season, album, album_a
     audio.add(TPE2(encoding=3, text=album_artist))
     audio.add(TALB(encoding=3, text=album))
     audio.save(path + filename)
+"""
 
 
 def download_selection(pod_path, url_list, title_list, history_info, item, episode, season, artist, album, album_artist):
