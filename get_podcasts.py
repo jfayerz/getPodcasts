@@ -48,6 +48,20 @@ def update_podcast_plex(s):
     s.library.section('Podcasts').update()
 
 
+"""
+    check if etag in pod_history
+        get etag from pod_history
+        or check if last_modified in pod_history
+            get last modified from pod_history
+                or get feed and proceed (and pull etag or last_modified)
+
+    get feed, supply with etag or last_modified
+        check rss.status
+            if 200, proceed, store new etag/last_modified in pod_history
+            if 304, move on to next podcast
+"""
+
+
 def get_podcasts(config_sections, history_sections):
     for podcast_entry in config_sections:
         if todays_date != history[podcast_entry]['last_downloaded_date']:
