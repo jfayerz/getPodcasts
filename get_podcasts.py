@@ -443,6 +443,7 @@ def primary_function(delim1, delim2, config):
         rss, parsed_rss_titles = get_parsed_rss(rss_url)
         selection_list = selection_options(parsed_rss_titles)
         list_of_selections = enter_selection(selection_list, rss, podcast_entry)
+        # print(str(list_of_selections) + " selections") # testing "enter_selection" func
         if isinstance(list_of_selections[0], str) and list_of_selections[0].lower() == 'n':
             delim1 += 1
             delim2 = (delim1 + 1)
@@ -463,8 +464,9 @@ def primary_function(delim1, delim2, config):
 
             episode_number_parameters = config.get(podcast_entry, "episode_parameters")
             episode_num_list = []
+            # print(str(episode_num_list) + " episode_num_list" ) # testing this list
 
-            if episode_number_parameters != "":                    # checking to see if the parameters
+            if episode_number_parameters != "":                             # checking to see if the parameters
                 episode_params = episode_number_parameters.split(",")       # option under the selection is populated
 
             if config[podcast_entry]['episode_location'] == '':  # checks to see where the ep# is located
@@ -475,7 +477,24 @@ def primary_function(delim1, delim2, config):
                     while count_goes_up < number_options:
                         selection_from_list = list_of_selections[count_goes_up]
                         try:
-                            episode_num_list.append(rss.entries[selection_from_list].itunes_episode)
+                            episode_num_list.append(rss.entries[selection_from_list - 1].itunes_episode)
+                            """
+                                on episode_num_list.append above, i added the " - 1"
+                                after the "selection_from_list" variable for entries[]
+                                selection from list = list_of_selections[count_goes_up]
+                                selection from list = list_of_selections[0]
+                                * if user selects an episode range of 1-3, for example
+                                selection from list = 1
+                                but "1" in the entries[] list is actually the second
+                                entry in the rss feed.  but the rest of the script
+                                will still download the intended episode and then encode it
+                                with the wrong episode number.
+                                so the " - 1" puts the correct positional number in place 
+                                in "entries" corresponding to their selection.
+                                i.e. user selects: 1-3
+                                     position in entries is: 0-2
+                            """
+                            print(episode_num_list)
                         except (KeyError, AttributeError):
                             episode_num_list.append('')
                         count_goes_up += 1
