@@ -60,107 +60,126 @@ def update_podcast_plex(s):
             if 200, proceed, store new etag/last_modified in pod_history
             if 304, move on to next podcast
 """
+def get_token(podcast):
+    if history[podcast]['etag'] != '':
+        return history[podcast]['etag']
+    else:
+        return history[podcast]['last_modified']
 
 
 def get_podcasts(config_sections, history_sections):
     for podcast_entry in config_sections:
         if todays_date != history[podcast_entry]['last_downloaded_date']:
             print("Getting rss info for " + podcast_entry + ".")
-            rss = fp.parse(config[podcast_entry]['rss'])
-            if config[podcast_entry]['podpath'] != "":
-                pod_path = config[podcast_entry]['podpath']
-            else:
-                pod_path = ''
-            episode_number_parameters = config.get(podcast_entry, 'episode_parameters')
-            if episode_number_parameters != '':
-                episode_params = episode_number_parameters.split(',')
-
-            season_number_parameters = config.get(podcast_entry, 'season_parameters')
-            if season_number_parameters != '':
-                season_params = season_number_parameters.split(',')
-
-            title = []
-            title_formatted_white_space_removed = rss.entries[0].title.strip()
-            title.append(title_formatted_white_space_removed)
-            file_name = []
-            title_to_filename = re.sub('/', ' ', title[0]) + ".mp3"
-            file_name.append(title_to_filename)
-            artist = config[podcast_entry]['artist']
-            album = config[podcast_entry]['album']
-            album_artist = config[podcast_entry]['album_artist']
-            last_url = history[podcast_entry]['last_url']
-            does_this_link_contain_mp3 = rss.entries[0].links[0].href.find(".mp3")
-            url = []
-            if does_this_link_contain_mp3 != -1:
-                if rss.entries[0].links[0].href.find(".mp3", (does_this_link_contain_mp3 + 4)) != -1:
-                    what_about_this_link = rss.entries[0].links[0].href.find(".mp3", (does_this_link_contain_mp3 + 4))
-                    url.append(rss.entries[0].links[0].href[0:(what_about_this_link + 4)])
-                else:
-                    url.append(rss.entries[0].links[0].href[0:(does_this_link_contain_mp3 + 4)])
-            else:
+            token = get_token(podcast_entry)
+            rss = fp.parse(config[podcast_entry]['rss'], etag=token, modified=token)
+            if rss.status == 200:
                 try:
-                    does_this_link_contain_mp3 = rss.entries[0].links[1].href.find(".mp3")
-                except IndexError:
-                    continue
-                if rss.entries[0].links[1].href.find(".mp3", (does_this_link_contain_mp3 + 4)) != -1:
-                    what_about_this_link = rss.entries[0].links[1].href.find(".mp3", (does_this_link_contain_mp3 + 4))
-                    url.append(rss.entries[0].links[1].href[0:(what_about_this_link + 4)])
-                else:
-                    url.append(rss.entries[0].links[1].href[0:(does_this_link_contain_mp3 + 4)])
-
-            if config[podcast_entry]['episode_location'] == '':
-                if config[podcast_entry]['epnum'] == 'no':
-                    episode_num = ''
-                else:
-                    try:
-                        episode_num = rss.entries[0].itunes_episode
-                    except (KeyError, AttributeError):
-                        episode_num = ''
-            elif config[podcast_entry]['episode_location'] == 'title':
-                episode_num = get_episode_or_season_num(title, episode_params)
-            else:
-                episode_num = get_episode_or_season_num(url, episode_params)
-
-            if config[podcast_entry]['season_location'] == '':
-                if config[podcast_entry]['snnum'] == 'no':
-                    season_num = ''
-                else:
-                    try:
-                        season_num = rss.entries[0].itunes_season
-                    except (KeyError, AttributeError):
-                        season_num = ''
-            elif config[podcast_entry]['season_location'] == 'title':
-                season_num = get_episode_or_season_num(title, season_params)
-            else:
-                episode_num = get_episode_or_season_num(url, season_params)
-
-            if podcast_entry in history_sections:
-                if url[0] != last_url:
-                    history[podcast_entry]['last_url'] = url[0]
-                    history[podcast_entry]['last_downloaded_date'] = todays_date
-                    with open(path_to_configuration_file + history_file, 'w') as pH:
+                    history[podcast_entry]['etag'] = rss.etag
+                    with open('pod_history', 'w') as pH:
                         history.write(pH)
-                    print("Downloading " + title[0] + " from the " + podcast_entry + " podcast.")
-                    if pod_path != "":
-                        try:
-                            urllib.request.urlretrieve(url[0], pod_path + file_name[0])
-                            write_id3_single_file(pod_path, file_name[0], title[0], episode_num, season_num, album, album_artist, artist)
-                        except urllib.error.HTTPError:
-                            print("Download error with " + title[0] + " episode.")
-                            continue
+                except:
+                    hist_token = rss.modified
+                    history[podcast_entry]['last_modified'] = rss.modified
+                    with open('pod_history', 'w') as pH:
+                        history.write(pH)
+                if config[podcast_entry]['podpath'] != "":
+                    pod_path = config[podcast_entry]['podpath']
+                else:
+                    pod_path = ''
+                episode_number_parameters = config.get(podcast_entry, 'episode_parameters')
+                if episode_number_parameters != '':
+                    episode_params = episode_number_parameters.split(',')
+
+                season_number_parameters = config.get(podcast_entry, 'season_parameters')
+                if season_number_parameters != '':
+                    season_params = season_number_parameters.split(',')
+
+                title = []
+                title_formatted_white_space_removed = rss.entries[0].title.strip()
+                title.append(title_formatted_white_space_removed)
+                file_name = []
+                title_to_filename = re.sub('/', ' ', title[0]) + ".mp3"
+                file_name.append(title_to_filename)
+                artist = config[podcast_entry]['artist']
+                album = config[podcast_entry]['album']
+                album_artist = config[podcast_entry]['album_artist']
+                last_url = history[podcast_entry]['last_url']
+                does_this_link_contain_mp3 = rss.entries[0].links[0].href.find(".mp3")
+                url = []
+                if does_this_link_contain_mp3 != -1:
+                    if rss.entries[0].links[0].href.find(".mp3", (does_this_link_contain_mp3 + 4)) != -1:
+                        what_about_this_link = rss.entries[0].links[0].href.find(".mp3", (does_this_link_contain_mp3 + 4))
+                        url.append(rss.entries[0].links[0].href[0:(what_about_this_link + 4)])
+                    else:
+                        url.append(rss.entries[0].links[0].href[0:(does_this_link_contain_mp3 + 4)])
+                else:
+                    try:
+                        does_this_link_contain_mp3 = rss.entries[0].links[1].href.find(".mp3")
+                    except IndexError:
+                        continue
+                    if rss.entries[0].links[1].href.find(".mp3", (does_this_link_contain_mp3 + 4)) != -1:
+                        what_about_this_link = rss.entries[0].links[1].href.find(".mp3", (does_this_link_contain_mp3 + 4))
+                        url.append(rss.entries[0].links[1].href[0:(what_about_this_link + 4)])
+                    else:
+                        url.append(rss.entries[0].links[1].href[0:(does_this_link_contain_mp3 + 4)])
+
+                if config[podcast_entry]['episode_location'] == '':
+                    if config[podcast_entry]['epnum'] == 'no':
+                        episode_num = ''
                     else:
                         try:
-                            urllib.request.urlretrieve(url[0], pod_path + file_name[0])
-                            write_id3_single_file(pod_path, file_name[0], title[0], episode_num, season_num, album, album_artist, artist)
-                        except urllib.HTTPError:
-                            print("Download error with " + title[0] + " episode.")
-                            continue
-                    # write_id3(pod_path, file_name, title, episode_num, season_num, album, album_artist, artist)
-                    # old "write_id3"
+                            episode_num = rss.entries[0].itunes_episode
+                        except (KeyError, AttributeError):
+                            episode_num = ''
+                elif config[podcast_entry]['episode_location'] == 'title':
+                    episode_num = get_episode_or_season_num(title, episode_params)
                 else:
-                    print("Already Downloaded " + podcast_entry + " episode.")
+                    episode_num = get_episode_or_season_num(url, episode_params)
+
+                if config[podcast_entry]['season_location'] == '':
+                    if config[podcast_entry]['snnum'] == 'no':
+                        season_num = ''
+                    else:
+                        try:
+                            season_num = rss.entries[0].itunes_season
+                        except (KeyError, AttributeError):
+                            season_num = ''
+                elif config[podcast_entry]['season_location'] == 'title':
+                    season_num = get_episode_or_season_num(title, season_params)
+                else:
+                    episode_num = get_episode_or_season_num(url, season_params)
+
+                if podcast_entry in history_sections:
+                    if url[0] != last_url:
+                        history[podcast_entry]['last_url'] = url[0]
+                        history[podcast_entry]['last_downloaded_date'] = todays_date
+                        with open(path_to_configuration_file + history_file, 'w') as pH:
+                            history.write(pH)
+                        print("Downloading " + title[0] + " from the " + podcast_entry + " podcast.")
+                        if pod_path != "":
+                            try:
+                                urllib.request.urlretrieve(url[0], pod_path + file_name[0])
+                                write_id3_single_file(pod_path, file_name[0], title[0], episode_num, season_num, album, album_artist, artist)
+                            except urllib.error.HTTPError:
+                                print("Download error with " + title[0] + " episode.")
+                                continue
+                        else:
+                            try:
+                                urllib.request.urlretrieve(url[0], pod_path + file_name[0])
+                                write_id3_single_file(pod_path, file_name[0], title[0], episode_num, season_num, album, album_artist, artist)
+                            except urllib.HTTPError:
+                                print("Download error with " + title[0] + " episode.")
+                                continue
+                        # write_id3(pod_path, file_name, title, episode_num, season_num, album, album_artist, artist)
+                        # old "write_id3"
+                    else:
+                        print("Already Downloaded " + podcast_entry + " episode.")
+                else:
+                    print("Error")
             else:
-                print("Error")
+                # write token to appropriate place 
+                print("Rss Feed hasn't changed.")
         else:
             print("Already checked " + config[podcast_entry]['album'] + " podcast today.")
 
