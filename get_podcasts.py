@@ -78,11 +78,15 @@ def get_podcasts(config_sections, history_sections):
                     history[podcast_entry]['etag'] = rss.etag
                     with open('pod_history', 'w') as pH:
                         history.write(pH)
-                except:
-                    hist_token = rss.modified
-                    history[podcast_entry]['last_modified'] = rss.modified
-                    with open('pod_history', 'w') as pH:
-                        history.write(pH)
+                except (KeyError, AttributeError):
+                    try:
+                        hist_token = rss.modified
+                        history[podcast_entry]['last_modified'] = rss.modified
+                        with open('pod_history', 'w') as pH:
+                            history.write(pH)
+                    except (KeyError, AttributeError):
+                        token = ''
+                        print( "RSS has no token" )
                 if config[podcast_entry]['podpath'] != "":
                     pod_path = config[podcast_entry]['podpath']
                 else:
