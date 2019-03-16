@@ -1,11 +1,12 @@
 [The Dollop]
-last_url = 
-last_downloaded_date = 
-; etag =
-; last_modified =
+last_url = http://traffic.libsyn.com/thedollop/Operation_Wetback.mp3
+last_downloaded_date =
+etag = 
+last_modified = Tue, 12 Mar 2019 05:22:02 GMT
 
-[The NoSleep Podcast]
-last_url = 
+[Westside Fairy Tales]
+last_url = http://static1.squarespace.com/static/528c5d94e4b04aa0e2073a1c/t/5c76e129eef1a134f94dede8/1551294878643/306+-+Tota+Americana+One.mp3
 last_downloaded_date = 
-; etag =
-; last_modified =
+etag = W/"9784b8fa2423d2bb70e50e3b376d8163"
+last_modified = 
+
