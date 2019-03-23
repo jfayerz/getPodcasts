@@ -540,7 +540,7 @@ def primary_function(delim1, delim2, config):
                     while count_goes_up < number_options:
                         selection_from_list = list_of_selections[count_goes_up]
                         try:
-                            season_num_list.append(rss.entries[selection_from_list].itunes_season)
+                            season_num_list.append(rss.entries[selection_from_list - 1].itunes_season)
                         except (KeyError, AttributeError):
                             season_num_list.append('')
                         count_goes_up += 1
