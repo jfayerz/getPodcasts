@@ -29,7 +29,7 @@ from write_id3_single_file import write_id3_single_file
 
 user_options = len(sys.argv)
 todays_date = str(date.today())
-path_to_configuration_file = '/scripts/podcast/'
+path_to_configuration_file = ''
 configuration_settings_file = 'pod_config'
 history_file = 'pod_history'
 token_file = 'plex_token'
@@ -41,7 +41,7 @@ history.read(path_to_configuration_file + history_file)
 plextoken.read(path_to_configuration_file + token_file)
 config_sections = config.sections()
 history_sections = history.sections()
-plex = PlexServer(plextoken['miskatonic']['url'], plextoken['miskatonic']['plex_token'])
+plex = PlexServer(plextoken['server-name']['url'], plextoken['server-name']['plex_token'])
 
 
 def update_podcast_plex(s):
