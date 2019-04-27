@@ -29,19 +29,19 @@ from write_id3_single_file import write_id3_single_file
 
 user_options = len(sys.argv)
 todays_date = str(date.today())
-path_to_configuration_file = './'
+path_to_configuration_file = '/scripts/podcast/'
 configuration_settings_file = 'pod_config'
 history_file = 'pod_history'
 token_file = 'plex_token'
 config = cp.ConfigParser()
 history = cp.ConfigParser()
-token = cp.ConfigParser()
+plextoken = cp.ConfigParser()
 config.read(path_to_configuration_file + configuration_settings_file)
 history.read(path_to_configuration_file + history_file)
-token.read(path_to_configuration_file + token_file)
+plextoken.read(path_to_configuration_file + token_file)
 config_sections = config.sections()
 history_sections = history.sections()
-plex = PlexServer(token['miskatonic']['url'], token['miskatonic']['plex_token'])
+plex = PlexServer(plextoken['miskatonic']['url'], plextoken['miskatonic']['plex_token'])
 
 
 def update_podcast_plex(s):
@@ -62,6 +62,7 @@ def update_podcast_plex(s):
 """
 def get_token(podcast):
     if history[podcast]['etag'] != '':
+        # print(podcast + ': ' + history[podcast]['etag'])
         return history[podcast]['etag']
     else:
         return history[podcast]['last_modified']
@@ -73,16 +74,17 @@ def get_podcasts(config_sections, history_sections):
             print("Getting rss info for " + podcast_entry + ".")
             token = get_token(podcast_entry)
             rss = fp.parse(config[podcast_entry]['rss'], etag=token, modified=token)
+            # print(rss.status)
             if rss.status == 200:
                 try:
                     history[podcast_entry]['etag'] = rss.etag
-                    with open('pod_history', 'w') as pH:
+                    with open(path_to_configuration_file + history_file, 'w') as pH:
                         history.write(pH)
                 except (KeyError, AttributeError):
                     try:
                         hist_token = rss.modified
                         history[podcast_entry]['last_modified'] = rss.modified
-                        with open('pod_history', 'w') as pH:
+                        with open(path_to_configuration_file + history_file, 'w') as pH:
                             history.write(pH)
                     except (KeyError, AttributeError):
                         token = ''
@@ -155,8 +157,8 @@ def get_podcasts(config_sections, history_sections):
                     episode_num = get_episode_or_season_num(url, season_params)
 
                 if podcast_entry in history_sections:
-                    if url[0] != last_url:
-                        history[podcast_entry]['last_url'] = url[0]
+                    if re.sub(r'[%]', r'_', url[0]) != last_url:
+                        history[podcast_entry]['last_url'] = re.sub(r'[%]', r'_', url[0])
                         history[podcast_entry]['last_downloaded_date'] = todays_date
                         with open(path_to_configuration_file + history_file, 'w') as pH:
                             history.write(pH)
@@ -181,9 +183,11 @@ def get_podcasts(config_sections, history_sections):
                         print("Already Downloaded " + podcast_entry + " episode.")
                 else:
                     print("Error")
-            else:
+            elif rss.status == 304:
                 # write token to appropriate place 
                 print("Rss Feed hasn't changed.")
+            else:
+                print( "\nRSS Status Code: " + str(rss.status) + "\n"  )
         else:
             print("Already checked " + config[podcast_entry]['album'] + " podcast today.")
 
@@ -457,6 +461,7 @@ def download_selection(pod_path, url_list, title_list, history_info, item, episo
 
 
 def primary_function(delim1, delim2, config):
+    print(str(delim1) + " " + str(delim2) + " " + str(config))
 
     for podcast_entry in config.sections()[delim1:delim2]:  # If you choose [A] this will go through all of the podcasts
                                                             # in the list even if you download some episodes for some
