@@ -1,14 +1,14 @@
 # get_podcasts.py
 
 ## Problem Encountered:
-I like using a command line interface for most of my computing.
-I also like using non-standard audio applications on my mobile devices (e.g. Plex)
-I like podcasts
-I found a good command-line podcast application for subscribing to and downloading podcasts
+- I like using a command line interface for most of my computing.
+- - I also like using non-standard audio applications on my mobile devices (e.g. Plex)
+- I like podcasts
+- I found a good command-line podcast application for subscribing to and downloading podcasts
 _however_
-The quickly discovered that the **metadata** provided on these downloaded files was severely lacking
-Additionally, this was a problem because some of those rss feeds (I'm looking at you, Patreon) use a random alphanumeric naming scheme for their 20-30 character long episode name.
-It was at this point that I really started valuing iTunes and other podcast repositories.
+- I quickly discovered that the **metadata** provided on these downloaded files was severely lacking
+- Additionally, this was a problem because some of those rss feeds (I'm looking at you, Patreon) use a random alphanumeric naming scheme for their 20-30 character long episode name.
+- It was at this point that I really started valuing iTunes and other podcast repositories.
 
 ## Problem Solved:
 This script:
