@@ -1,17 +1,20 @@
 # get_podcasts.py
 
 ## Problem Encountered:
-I like using a command line interface for most of my computing.
-I also like using non-standard audio applications on my mobile devices (e.g. Plex)
-I like podcasts
-I found a good command-line podcast application for subscribing to and downloading podcasts
-_however_
-The quickly discovered that the **metadata** provided on these downloaded files was severely lacking
-Additionally, this was a problem because some of those rss feeds (I'm looking at you, Patreon) use a random alphanumeric naming scheme for their 20-30 character long episode name.
-It was at this point that I really started valuing iTunes and other podcast repositories.
+- I like using a command line interface for most of my computing.
+- I also like using non-standard audio applications on my mobile devices (e.g. Plex)
+- I like podcasts
+- I found a good command-line podcast application for subscribing to and downloading podcasts
+
+_**HOWEVER**_
+
+- I quickly discovered that the **metadata** provided on these downloaded files was severely lacking
+- Additionally, this was a problem because some of those rss feeds (I'm looking at you, Patreon) use a random alphanumeric naming scheme for their 20-30 character long episode name.
+- It was at this point that I really started valuing iTunes and other podcast repositories.
 
 ## Problem Solved:
 This script:
+
 - checks a list of rss feeds
 - checks for new episodes using etag, date-modified, or other methods
 - grabs information from the xml feed for metadata encoding
@@ -20,9 +23,11 @@ This script:
 - deposits the audio file in a location specified by you.
 
 This script *also*:
+
 - allows the user to run it and select multiple episodes from a podcasts rss feed
 
 This script *does not*:
+
 - require you to download every single episode from the rss feed in order to make use of it (no thank you, i already have all 300+ episodes of The Dollop, I don't need to download it again just because my sqlite db got corrupted).
 
 ## How to use:
@@ -49,7 +54,8 @@ This script *does not*:
 	- this is what you want to use if you want to automate it since it doesn't require any further input from you
 
 ## Setup
-- edit the podConfig file and add your podcast info following the model
+
+### edit the podConfig file:
 
 * **rss** - the rss url for the podcast. You may have to search for this.
 * **artist, album, album\_artist** - these are for the metadata and will apply to every episode for this podcast that you download
@@ -75,8 +81,8 @@ This script *does not*:
 * **rssparams** - not used, but i haven't removed it yet
 * **podpath** - where, in your file system, you want to save episodes of this podcast
 
-- edit the podHistory file:
-	- You do not need to manually type any actual dates or tags or urls in this file.  Just make a place for similar to the model provided in the pod\_history file.
+### edit the podHistory file:
+- NOTE: You do not need to manually type any actual dates or tags or urls in this file.  Just make a place for similar to the model provided in the pod\_history file.
 
 * **last_url** - last recorded mp3's url from the rss feed used
 * **last_downloaded_date** - records the date of the last time downloaded
