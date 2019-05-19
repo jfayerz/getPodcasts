@@ -10,19 +10,6 @@ season_parameters =
 epnum = no
 snnum = no
 podpath = dummy_mp3/
-; 
-; [The NoSleep Podcast]
-; rss = ./dummy_rss/nosleep.rss
-; artist = The NoSleep Podcast
-; album = The NoSleep Podcast
-; album_artist = The NoSleep Podcast
-; episode_location = title
-; episode_parameters = E,2, -,0
-; season_location = title
-; season_parameters = t S,2,E,0
-; epnum = no
-; snnum = no
-; podpath = dummy_mp3/
 
 [Westside Fairy Tales]
 rss = https://westsidefairytales.com/westside-fairytales-podcast?format=RSS

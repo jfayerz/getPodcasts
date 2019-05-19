@@ -15,7 +15,7 @@ https://github.com/jfayerz/get_podcasts
 #   - option to continue scrolling down list of episodes after downloading
 #       your first selection
 import sys
-from plexapi.server import PlexServer
+# from plexapi.server import PlexServer
 import re
 import feedparser as fp
 import urllib
@@ -32,34 +32,33 @@ todays_date = str(date.today())
 path_to_configuration_file = ''
 configuration_settings_file = 'pod_config'
 history_file = 'pod_history'
-token_file = 'plex_token'
+# token_file = 'plex_token'
 config = cp.ConfigParser()
 history = cp.ConfigParser()
-plextoken = cp.ConfigParser()
+# plextoken = cp.ConfigParser()
 config.read(path_to_configuration_file + configuration_settings_file)
 history.read(path_to_configuration_file + history_file)
-plextoken.read(path_to_configuration_file + token_file)
+# plextoken.read(path_to_configuration_file + token_file)
 config_sections = config.sections()
 history_sections = history.sections()
-plex = PlexServer(plextoken['server-name']['url'], plextoken['server-name']['plex_token'])
+# plex = PlexServer(plextoken['server-name']['url'], plextoken['server-name']['plex_token'])
 
 
-def update_podcast_plex(s):
-    s.library.section('Podcasts').update()
+# def update_podcast_plex(s):
+#     s.library.section('Podcasts').update()
 
 
-"""
-    check if etag in pod_history
-        get etag from pod_history
-        or check if last_modified in pod_history
-            get last modified from pod_history
-                or get feed and proceed (and pull etag or last_modified)
+#     check if etag in pod_history
+#         get etag from pod_history
+#         or check if last_modified in pod_history
+#             get last modified from pod_history
+#                 or get feed and proceed (and pull etag or last_modified)
+# 
+#     get feed, supply with etag or last_modified
+#         check rss.status
+#             if 200, proceed, store new etag/last_modified in pod_history
+#             if 304, move on to next podcast
 
-    get feed, supply with etag or last_modified
-        check rss.status
-            if 200, proceed, store new etag/last_modified in pod_history
-            if 304, move on to next podcast
-"""
 def get_token(podcast):
     if history[podcast]['etag'] != '':
         # print(podcast + ': ' + history[podcast]['etag'])
@@ -326,12 +325,10 @@ def get_selection_url_title(list_options, rss):
     return url, title
 
 
-"""
-                        returns a list with the mp3 download url of
-                        the selection and the title of the selection
-                        TODO: eventually add the ability to select more than
-                        one
-"""
+#                         returns a list with the mp3 download url of
+#                         the selection and the title of the selection
+#                         TODO: eventually add the ability to select more than
+#                         one
 
 
 def get_episode_or_season_num(urltitle_list, parameters):
@@ -350,74 +347,73 @@ def get_episode_or_season_num(urltitle_list, parameters):
 # commenting out write_id3 function
 # function is now in a separate file
 # also, this function is unused
-"""
-def write_id3(pod_path, file_name, titles, episode_num, season_num, alb, albart, art):
 
-    print(season_num)
-    for file_name_entry in file_name:
-        file_name_index = file_name_entry.index(file_name_entry)
-        try:
-            audio = ID3(pod_path + file_name_entry)
-            audio.delete()
-            audio = ID3()
-        except ID3NoHeaderError:
-            audio = ID3()
-        audio.add(TIT2(encoding=3, text=titles[file_name_index]))
-        if len(episode_num) != 0:
-            audio.add(TRCK(encoding=3, text=episode_num[file_name_index]))
-        else:
-            print("No Ep Num")
-        if len(season_num) != 0:
-            audio.add(TPOS(encoding=3, text=season_num[file_name_index]))
-        else:
-            print("No Sn Num")
-        audio.add(TPE1(encoding=3, text=art))
-        audio.add(TPE2(encoding=3, text=albart))
-        audio.add(TALB(encoding=3, text=alb))
-        audio.save(pod_path + file_name_entry)
-"""
+# def write_id3(pod_path, file_name, titles, episode_num, season_num, alb, albart, art):
+# 
+#     print(season_num)
+#     for file_name_entry in file_name:
+#         file_name_index = file_name_entry.index(file_name_entry)
+#         try:
+#             audio = ID3(pod_path + file_name_entry)
+#             audio.delete()
+#             audio = ID3()
+#         except ID3NoHeaderError:
+#             audio = ID3()
+#         audio.add(TIT2(encoding=3, text=titles[file_name_index]))
+#         if len(episode_num) != 0:
+#             audio.add(TRCK(encoding=3, text=episode_num[file_name_index]))
+#         else:
+#             print("No Ep Num")
+#         if len(season_num) != 0:
+#             audio.add(TPOS(encoding=3, text=season_num[file_name_index]))
+#         else:
+#             print("No Sn Num")
+#         audio.add(TPE1(encoding=3, text=art))
+#         audio.add(TPE2(encoding=3, text=albart))
+#         audio.add(TALB(encoding=3, text=alb))
+#         audio.save(pod_path + file_name_entry)
 
 # commenting out
 # function is now imported from a separate file
-"""
-def write_id3_single_file(path, filename, title, episode, season, album, album_artist, artist):
-    print(episode)
-    print(season)
-    try:
-        audio = ID3(path + filename)
-        audio.delete()
-        audio = ID3()
-    except ID3NoHeaderError:
-        audio = ID3()
 
-    audio.add(TIT2(encoding=3, text=title))
-    if episode != '':
-        audio.add(TRCK(encoding=3, text=episode))
-    else:
-        print('No Episode Number')
+# def write_id3_single_file(path, filename, title, episode, season, album, album_artist, artist):
+#     print(episode)
+#     print(season)
+#     try:
+#         audio = ID3(path + filename)
+#         audio.delete()
+#         audio = ID3()
+#     except ID3NoHeaderError:
+#         audio = ID3()
+# 
+#     audio.add(TIT2(encoding=3, text=title))
+#     if episode != '':
+#         audio.add(TRCK(encoding=3, text=episode))
+#     else:
+#         print('No Episode Number')
+# 
+#     if season != '':
+#         audio.add(TPOS(encoding=3, text=season))
+#     else:
+#         print('No Season Number')
+# 
+#     audio.add(TPE1(encoding=3, text=artist))
+#     audio.add(TPE2(encoding=3, text=album_artist))
+#     audio.add(TALB(encoding=3, text=album))
+#     audio.save(path + filename)
 
-    if season != '':
-        audio.add(TPOS(encoding=3, text=season))
-    else:
-        print('No Season Number')
 
-    audio.add(TPE1(encoding=3, text=artist))
-    audio.add(TPE2(encoding=3, text=album_artist))
-    audio.add(TALB(encoding=3, text=album))
-    audio.save(path + filename)
-"""
-
-
+#             download_selection(pod_path, url, title, history, podcast_entry, episode_num_list,
+#                                season_num_list, artist, album, album_artist)
 def download_selection(pod_path, url_list, title_list, history_info, item, episode, season, artist, album, album_artist):
-    """
-    print(episode)
-    print(season)
-    episode_numbers_list = list(map(int, episode))
-    season_numbers_list = list(map(int, season))
-    print(episode_numbers_list)
-    print(season_numbers_list)
-    """
+#     print(episode)
+#     print(season)
+#     episode_numbers_list = list(map(int, episode))
+#     season_numbers_list = list(map(int, season))
+#     print(episode_numbers_list)
+#     print(season_numbers_list)
     file_names = []
+    #print(len(url_list))
     if len(url_list) > 1:
         count_goes_up = 0
         while count_goes_up < len(url_list):
@@ -429,11 +425,15 @@ def download_selection(pod_path, url_list, title_list, history_info, item, episo
                 pod_path +
                 file_names[count_goes_up])
             print("Downloaded ", title_formatted)
-            if len(season) == 1:
+            if (len(season) == 1 and len(episode) != 1):
                 write_id3_single_file(pod_path, file_names[count_goes_up], title_formatted,
                                       episode[count_goes_up], season[0], album, album_artist, artist)
                 count_goes_up += 1
-            else:
+            elif (len(season) == 1 and len(episode) == 1):
+                write_id3_single_file(pod_path, file_names[count_goes_up], title_formatted,
+                                      episode[0], season[0], album, album_artist, artist)
+                count_goes_up += 1
+            else: # elif (len(season) != 1 and len(episode) != 1):
                 write_id3_single_file(pod_path, file_names[count_goes_up], title_formatted,
                                       episode[count_goes_up], season[count_goes_up], album, album_artist, artist)
                 count_goes_up += 1
@@ -506,23 +506,7 @@ def primary_function(delim1, delim2, config):
                         selection_from_list = list_of_selections[count_goes_up]
                         try:
                             episode_num_list.append(rss.entries[selection_from_list - 1].itunes_episode)
-                            """
-                                on episode_num_list.append above, i added the " - 1"
-                                after the "selection_from_list" variable for entries[]
-                                selection from list = list_of_selections[count_goes_up]
-                                selection from list = list_of_selections[0]
-                                * if user selects an episode range of 1-3, for example
-                                selection from list = 1
-                                but "1" in the entries[] list is actually the second
-                                entry in the rss feed.  but the rest of the script
-                                will still download the intended episode and then encode it
-                                with the wrong episode number.
-                                so the " - 1" puts the correct positional number in place 
-                                in "entries" corresponding to their selection.
-                                i.e. user selects: 1-3
-                                     position in entries is: 0-2
-                            """
-                            print(episode_num_list)
+                            # print(episode_num_list)
                         except (KeyError, AttributeError):
                             episode_num_list.append('')
                         count_goes_up += 1
@@ -532,14 +516,15 @@ def primary_function(delim1, delim2, config):
                 episode_num_list = get_episode_or_season_num(url, episode_params)  # gets ep from url
 
             season_number_parameters = config.get(podcast_entry, 'season_parameters')
-            season_num_list = []
+            # season_num_list = []
+            # print("season_number_parameters: " + season_number_parameters)
 
-            if season_number_parameters != '':
+            if season_number_parameters != "":
                 season_params = season_number_parameters.split(',')
 
             if config[podcast_entry]['season_location'] == '':
                 if config[podcast_entry]['snnum'] == 'no':
-                    season_num_list.append('')
+                    season_num_list.append('1')
                 else:
                     count_goes_up = 0
                     while count_goes_up < number_options:
@@ -549,21 +534,19 @@ def primary_function(delim1, delim2, config):
                         except (KeyError, AttributeError):
                             season_num_list.append('')
                         count_goes_up += 1
-                    print(season_num_list)
+                    # print(season_num_list)
             elif config[podcast_entry]['season_location'] == 'title':
                 season_num_list = get_episode_or_season_num(title, season_params)
             else:
                 season_num_list = get_episode_or_season_num(url, season_params)
-            """
-            if config[podcast_entry]['snnum'] == 'yes':
-                count_goes_up = 0
-                while count_goes_up < number_options:
-                    selection_from_list = list_of_selections[count_goes_up]
-                    season_num_list.append(rss.entries[selection_from_list].itunes_season)
-                    count_goes_up += 1
-            else:
-                season_num_list = []
-            """
+                    # if config[podcast_entry]['snnum'] == 'yes':
+                    #     count_goes_up = 0
+                    #     while count_goes_up < number_options:
+                    #         selection_from_list = list_of_selections[count_goes_up]
+                    #         season_num_list.append(rss.entries[selection_from_list].itunes_season)
+                    #         count_goes_up += 1
+                    # else:
+                    #     season_num_list = []
 
             artist = config[podcast_entry]['artist']
             album = config[podcast_entry]['album']
@@ -609,4 +592,4 @@ if user_options != 1:
 else:
     get_podcasts(config_sections, history_sections)
 
-update_podcast_plex(plex)
+# update_podcast_plex(plex)
