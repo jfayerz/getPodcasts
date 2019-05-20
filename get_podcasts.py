@@ -22,6 +22,7 @@ import urllib
 import configparser as cp
 from datetime import date
 from write_id3_single_file import write_id3_single_file
+from requests import get
 # from mutagen.id3 import ID3NoHeaderError
 # from mutagen.id3 import ID3
 # from mutagen.id3 import TIT2, TALB, TPE1, TPE2, TRCK, TPOS
@@ -304,6 +305,7 @@ def get_selection_url_title(list_options, rss):
         title.append(rss.entries[item - 1].title)
         position = rss.entries[item - 1].links[0].href.find(".mp3")
         x = rss.entries[item - 1].links[0].href
+        patreon = 0
         try:
             y = rss.entries[item - 1].links[1].href
         except IndexError:
@@ -311,18 +313,38 @@ def get_selection_url_title(list_options, rss):
         if position != -1:
             if x.find(".mp3", (position + 4)) != -1:
                 position2 = x.find(".mp3", (position + 4))
-                url.append(x[0:(position2 + 4)])
+                if(x.find("patreon") != -1):
+                    url.append(x)
+                    patreon = 1
+                else:
+                    url.append(x[0:(position2 + 4)])
+                    patreon = 0
             else:
-                url.append(x[0:(position + 4)])
+                if(x.find("patreon") != -1):
+                    url.append(x)
+                    patreon = 1
+                else:
+                    url.append(x[0:(position + 4)])
+                    patreon = 0
         else:
             position = y.find(".mp3")
             if y.find(".mp3", (position + 4)) != -1:
                 position2 = y.find(".mp3", (position + 4))
-                url.append(y[0:(position2 + 4)])
+                if y.find("patreon") != -1:
+                    url.append(y)
+                    patreon = 1
+                else:
+                    url.append(y[0:(position2 + 4)])
+                    patreon = 0
             else:
-                url.append(y[0:(position + 4)])
+                if y.find("patreon") != -1:
+                    url.append(y)
+                    patreon = 1
+                else:
+                    url.append(y[0:(position + 4)])
+                    patreon = 0
     # print(url, title) # for testing
-    return url, title
+    return url, title, patreon
 
 
 #                         returns a list with the mp3 download url of
@@ -405,7 +427,8 @@ def get_episode_or_season_num(urltitle_list, parameters):
 
 #             download_selection(pod_path, url, title, history, podcast_entry, episode_num_list,
 #                                season_num_list, artist, album, album_artist)
-def download_selection(pod_path, url_list, title_list, history_info, item, episode, season, artist, album, album_artist):
+def download_selection(pod_path, url_list, title_list, history_info, item, episode, season, artist, album, album_artist,
+                      patreon_yes_no):
 #     print(episode)
 #     print(season)
 #     episode_numbers_list = list(map(int, episode))
@@ -420,10 +443,15 @@ def download_selection(pod_path, url_list, title_list, history_info, item, episo
             print("Downloading episode: ", title_list[count_goes_up])
             title_formatted = re.sub("/", "", title_list[count_goes_up])
             file_names.append(title_formatted + ".mp3")
-            urllib.request.urlretrieve(
-                url_list[count_goes_up],
-                pod_path +
-                file_names[count_goes_up])
+            if patreon_yes_no == 1:
+                with open(pod_path + file_names[count_goes_up], "wb") as file:
+                    response = get(url_list[count_goes_up])
+                    file.write(response.content)
+            else:
+                urllib.request.urlretrieve(
+                    url_list[count_goes_up],
+                    pod_path +
+                    file_names[count_goes_up])
             print("Downloaded ", title_formatted)
             if (len(season) == 1 and len(episode) != 1):
                 write_id3_single_file(pod_path, file_names[count_goes_up], title_formatted,
@@ -447,10 +475,19 @@ def download_selection(pod_path, url_list, title_list, history_info, item, episo
             print("Downloading episode: ", title_list[0])
             title_formatted = re.sub("/", "", title_list[0])
             file_names.append(title_formatted + ".mp3")
-            urllib.request.urlretrieve(
-                url_list[0],
-                pod_path +
-                file_names[0])
+            if patreon_yes_no == 1:
+                with open(pod_path + file_names[count_goes_up], "wb") as file:
+                    response = get(url_list[count_goes_up])
+                    file.write(response.content)
+            else:
+                urllib.request.urlretrieve(
+                    url_list[count_goes_up],
+                    pod_path +
+                    file_names[count_goes_up])
+            # urllib.request.urlretrieve(
+            #     url_list[0],
+            #     pod_path +
+            #     file_names[0])
             write_id3_single_file(pod_path, file_names[count_goes_up], title_formatted,
                                   episode[count_goes_up], season[count_goes_up], album, album_artist, artist)
             history_info[item]['last_url'] == url_list[0]
@@ -487,7 +524,7 @@ def primary_function(delim1, delim2, config):
             sys.exit()
         else:
             season_num_list = []
-            url, title = get_selection_url_title(list_of_selections, rss)
+            url, title, patreon = get_selection_url_title(list_of_selections, rss)
             number_options = len(list_of_selections)
 
             episode_number_parameters = config.get(podcast_entry, "episode_parameters")
@@ -558,7 +595,7 @@ def primary_function(delim1, delim2, config):
                 pod_path = ""
             # file_name_list =
             download_selection(pod_path, url, title, history, podcast_entry, episode_num_list,
-                               season_num_list, artist, album, album_artist)
+                               season_num_list, artist, album, album_artist, patreon)
             # write_id3(pod_path, file_name_list, title, episode_num_list, season_num_list, album, album_artist, artist)
             # Old "write_id3"
             print("File Saved.\nMetadata written.\n")
