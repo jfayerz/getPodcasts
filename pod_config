@@ -24,15 +24,3 @@ epnum = yes
 snnum = yes
 podpath = dummy_mp3/
 
-[Sword and Scale Premium]
-rss = https://www.patreon.com/rss/swordandscale?auth=40r72_WHC7FfNMMcmI31_fHf0e3rsRdN
-artist = Sword and Scale
-album = Sword and Scale
-album_artist = Mike Boudet
-episode_location = title
-episode_parameters = ode ,2, ,0
-season_location =
-season_parameters =
-epnum = no
-snnum = no
-podpath = dummy_mp3/
