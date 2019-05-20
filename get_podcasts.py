@@ -113,12 +113,23 @@ def get_podcasts(config_sections, history_sections):
                 last_url = history[podcast_entry]['last_url']
                 does_this_link_contain_mp3 = rss.entries[0].links[0].href.find(".mp3")
                 url = []
+                patreon = 0
                 if does_this_link_contain_mp3 != -1:
                     if rss.entries[0].links[0].href.find(".mp3", (does_this_link_contain_mp3 + 4)) != -1:
                         what_about_this_link = rss.entries[0].links[0].href.find(".mp3", (does_this_link_contain_mp3 + 4))
-                        url.append(rss.entries[0].links[0].href[0:(what_about_this_link + 4)])
+                        if (rss.entries[0].links[0].href.find("patreon") != -1):
+                            url.append(rss.entries[0].links[0].href)
+                            patreon = 1
+                        else:
+                            url.append(rss.entries[0].links[0].href[0:(what_about_this_link + 4)])
+                            patreon = 0
                     else:
-                        url.append(rss.entries[0].links[0].href[0:(does_this_link_contain_mp3 + 4)])
+                        if (rss.entries[0].links[0].href.find("patreon") != -1):
+                            url.append(rss.entries[0].links[0].href)
+                            patreon = 1
+                        else:
+                            url.append(rss.entries[0].links[0].href[0:(does_this_link_contain_mp3 + 4)])
+                            patreon = 0
                 else:
                     try:
                         does_this_link_contain_mp3 = rss.entries[0].links[1].href.find(".mp3")
@@ -126,9 +137,19 @@ def get_podcasts(config_sections, history_sections):
                         continue
                     if rss.entries[0].links[1].href.find(".mp3", (does_this_link_contain_mp3 + 4)) != -1:
                         what_about_this_link = rss.entries[0].links[1].href.find(".mp3", (does_this_link_contain_mp3 + 4))
-                        url.append(rss.entries[0].links[1].href[0:(what_about_this_link + 4)])
+                        if (rss.entries[0].links[1].href.find("patreon") != -1):
+                            url.append(rss.entries[0].links[1].href)
+                            patreon = 1
+                        else:
+                            url.append(rss.entries[0].links[1].href[0:(what_about_this_link + 4)])
+                            patreon = 0
                     else:
-                        url.append(rss.entries[0].links[1].href[0:(does_this_link_contain_mp3 + 4)])
+                        if (rss.entries[0].links[1].href.find("patreon") != -1):
+                            url.append(rss.entries[0].links[1].href)
+                            patreon = 1
+                        else:
+                            url.append(rss.entries[0].links[1].href[0:(does_this_link_contain_mp3 + 4)])
+                            patreon = 0
 
                 if config[podcast_entry]['episode_location'] == '':
                     if config[podcast_entry]['epnum'] == 'no':
@@ -163,20 +184,31 @@ def get_podcasts(config_sections, history_sections):
                         with open(path_to_configuration_file + history_file, 'w') as pH:
                             history.write(pH)
                         print("Downloading " + title[0] + " from the " + podcast_entry + " podcast.")
+
                         if pod_path != "":
-                            try:
-                                urllib.request.urlretrieve(url[0], pod_path + file_name[0])
-                                write_id3_single_file(pod_path, file_name[0], title[0], episode_num, season_num, album, album_artist, artist)
-                            except urllib.error.HTTPError:
-                                print("Download error with " + title[0] + " episode.")
-                                continue
+                            if patreon == 1:
+                                with open(pod_path + file_name[0], "wb") as file:
+                                    response = get(url[0])
+                                    file.write(response.content)
+                            else:
+                                try:
+                                    urllib.request.urlretrieve(url[0], pod_path + file_name[0])
+                                    write_id3_single_file(pod_path, file_name[0], title[0], episode_num, season_num, album, album_artist, artist)
+                                except urllib.error.HTTPError:
+                                    print("Download error with " + title[0] + " episode.")
+                                    continue
                         else:
-                            try:
-                                urllib.request.urlretrieve(url[0], pod_path + file_name[0])
-                                write_id3_single_file(pod_path, file_name[0], title[0], episode_num, season_num, album, album_artist, artist)
-                            except urllib.HTTPError:
-                                print("Download error with " + title[0] + " episode.")
-                                continue
+                            if patreon == 1:
+                                with open(pod_path + file_name[0], "wb") as file:
+                                    response = get(url[0])
+                                    file.write(response.content)
+                            else:
+                                try:
+                                    urllib.request.urlretrieve(url[0], pod_path + file_name[0])
+                                    write_id3_single_file(pod_path, file_name[0], title[0], episode_num, season_num, album, album_artist, artist)
+                                except urllib.HTTPError:
+                                    print("Download error with " + title[0] + " episode.")
+                                    continue
                         # write_id3(pod_path, file_name, title, episode_num, season_num, album, album_artist, artist)
                         # old "write_id3"
                     else:
